@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>智能备忘录系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: var(--bg-primary);
+            padding: 20px;
+            transition: all 0.3s ease;
+            min-height: 100vh;
+        }
+        
+        /* 10种莫兰迪色系主题 */
+        .theme-1 { --bg-primary: #F3F0E9; --bg-secondary: #E8E4DB; --accent-primary: #9CAF88; --accent-hover: #8A9D73; --text-dark: #4A4A4A; --border-color: #D1CCC4; --card-white: #FCFAF5; }
+        .theme-2 { --bg-primary: #E8EDF2; --bg-secondary: #DCE3E9; --accent-primary: #7D8C7F; --accent-hover: #6B7A6D; --text-dark: #4A5A6A; --border-color: #C8D0D8; --card-white: #F5F7FA; }
+        .theme-3 { --bg-primary: #E8EFE5; --bg-secondary: #DCE6D3; --accent-primary: #8BA384; --accent-hover: #799172; --text-dark: #3A5A3A; --border-color: #C8D8C0; --card-white: #F4F8F0; }
+        .theme-4 { --bg-primary: #F5EDEF; --bg-secondary: #EDE1E4; --accent-primary: #C9A9B4; --accent-hover: #B897A2; --text-dark: #5A4A4A; --border-color: #D8C8CC; --card-white: #FDF7F8; }
+        .theme-5 { --bg-primary: #EBE4E8; --bg-secondary: #DFD5DC; --accent-primary: #B5A0B0; --accent-hover: #A38E9E; --text-dark: #4A3A4A; --border-color: #C8BCC4; --card-white: #F9F5F8; }
+        .theme-6 { --bg-primary: #E5E8E3; --bg-secondary: #D9DDD4; --accent-primary: #A0B0A0; --accent-hover: #8E9E8E; --text-dark: #3A4A3A; --border-color: #C0C8BC; --card-white: #F4F6F0; }
+        .theme-7 { --bg-primary: #F0EAE3; --bg-secondary: #E4DCD3; --accent-primary: #C4A882; --accent-hover: #B29670; --text-dark: #5A4A3A; --border-color: #D4C8BC; --card-white: #FCF8F2; }
+        .theme-8 { --bg-primary: #E3E6EE; --bg-secondary: #D7DAE4; --accent-primary: #8E9EBB; --accent-hover: #7C8CA9; --text-dark: #3A4A5A; --border-color: #BCC4D0; --card-white: #F0F2F8; }
+        .theme-9 { --bg-primary: #EDE5DF; --bg-secondary: #E1D7CF; --accent-primary: #B89A8A; --accent-hover: #A68878; --text-dark: #5A4A3A; --border-color: #D0C4BC; --card-white: #FBF6F2; }
+        .theme-10 { --bg-primary: #E2E6E0; --bg-secondary: #D4D9D0; --accent-primary: #90A89A; --accent-hover: #7E9688; --text-dark: #3A4A3A; --border-color: #BCC4B8; --card-white: #F0F4EC; }
+        
+        /* 登录/注册页面 */
+        .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 20000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .auth-container {
+            background: var(--card-white);
+            border-radius: 24px;
+            padding: 32px;
+            width: 400px;
+            max-width: 90%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            border: 1px solid var(--border-color);
+        }
+        
+        .auth-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-dark);
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        
+        .auth-input {
+            width: 100%;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 14px;
+            background: var(--card-white);
+            color: var(--text-dark);
+        }
+        
+        .auth-input:focus { outline: none; border-color: var(--accent-primary); }
+        
+        .auth-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        
+        .auth-btn:hover { background: var(--accent-hover); }
+        
+        .auth-link {
+            text-align: center;
+            margin-top: 16px;
+            color: var(--text-light);
+            cursor: pointer;
+        }
+        
+        .auth-link span { color: var(--accent-primary); text-decoration: underline; }
+        
+        .user-info-bar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+            padding: 8px 16px;
+            background: var(--bg-secondary);
+            border-radius: 40px;
+        }
+        
+        .user-name { color: var(--text-dark); font-weight: 500; }
+        
+        .logout-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            color: var(--text-light);
+        }
+        
+        .logout-btn:hover { background: rgba(0,0,0,0.05); }
+        
+        .tabs-container {
+            background: var(--card-white);
+            border-radius: 16px 16px 0 0;
+            padding: 12px 20px 0 20px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            background: var(--bg-secondary);
+            border: none;
+            border-radius: 12px 12px 0 0;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+        
+        .tab.active { background: var(--accent-primary); color: white; }
+        
+        .delete-tab {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 0 5px;
+            border-radius: 50%;
+        }
+        
+        .add-tab-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .main-container {
+            background: var(--card-white);
+            border-radius: 0 0 16px 16px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        
+        .memo-content { display: none; }
+        .memo-content.active { display: block; }
+        
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 16px 0;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+        
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            text-align: left;
+            vertical-align: middle;
+        }
+        
+        th { background-color: var(--bg-secondary); font-weight: 600; color: var(--text-dark); }
+        .row-completed { text-decoration: line-through; opacity: 0.6; }
+        .checkbox-col { text-align: center; width: 60px; }
+        .action-col { text-align: center; width: 100px; }
+        
+        .btn-icon {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+        
+        .btn-icon:hover { background: var(--bg-secondary); }
+        
+        .toolbar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+        }
+        
+        button {
+            background: var(--accent-primary);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        button:hover { background: var(--accent-hover); }
+        button.danger { background: #dc3545; }
+        button.secondary { background: var(--accent-primary); }
+        button.success { background: #28a745; }
+        
+        /* 备注栏 */
+        .remark-section {
+            margin-top: 20px;
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+        }
+        
+        .remark-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .remark-toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
+        .remark-toolbar button { padding: 4px 12px; font-size: 12px; }
+        
+        .remark-editor {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+            resize: vertical;
+            overflow-y: auto;
+            background-color: var(--card-white);
+        }
+        
+        .remark-editor:focus { outline: none; border-color: var(--accent-primary); }
+        
+        .footer-bar { margin-top: 10px; display: flex; justify-content: space-between; }
+        .save-status { font-size: 12px; color: #28a745; }
+        
+        /* 背景主题按钮 - 放置在备注栏下方 */
+        .theme-section {
+            margin-top: 16px;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+        }
+        
+        .theme-section-title {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .theme-circle-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-hover));
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .theme-circle-btn:hover { transform: scale(1.05); }
+        
+        /* 抽屉式主题面板（从右侧弹出） */
+        .theme-drawer-panel {
+            position: fixed;
+            right: -300px;
+            top: 0;
+            width: 280px;
+            height: 100%;
+            background: var(--card-white);
+            box-shadow: -2px 0 20px rgba(0,0,0,0.15);
+            transition: right 0.3s ease;
+            z-index: 10001;
+            overflow-y: auto;
+            border-left: 1px solid var(--border-color);
+        }
+        
+        .theme-drawer-panel.open { right: 0; }
+        
+        .theme-drawer-header {
+            padding: 20px;
+            background: var(--accent-primary);
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .theme-drawer-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0 8px;
+        }
+        
+        .theme-drawer-list { padding: 16px; }
+        
+        .theme-drawer-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            background: var(--bg-secondary);
+            transition: all 0.2s;
+        }
+        
+        .theme-drawer-item:hover { background: var(--border-color); transform: translateX(-4px); }
+        .theme-drawer-item.active { background: var(--accent-primary); color: white; }
+        
+        .theme-drawer-color {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .theme-drawer-name { font-weight: 500; }
+        
+        .color-picker-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .color-picker-content {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .color-picker-title { font-size: 18px; font-weight: 600; margin-bottom: 15px; }
+        
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .color-option {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .color-option:hover { transform: scale(1.1); border-color: #333; }
+        
+        .custom-color { margin-top: 15px; display: flex; gap: 10px; align-items: center; }
+        .custom-color input { flex: 1; padding: 8px; border: 1px solid #dee2e6; border-radius: 6px; }
+        .color-preview { width: 40px; height: 40px; border-radius: 6px; border: 1px solid #dee2e6; }
+        
+        .color-picker-buttons { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+        
+        .import-area { position: relative; display: inline-block; }
+        .import-area input { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+        
+        .small-btn { padding: 4px 12px; font-size: 12px; background: var(--accent-primary); }
+        
+        .small-window-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--accent-primary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            z-index: 999;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        
+        .small-window-btn:hover { background: var(--accent-hover); }
+        
+        .column-selector-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 10002;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .column-selector-content {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .column-selector-title { font-size: 18px; font-weight: 600; margin-bottom: 15px; }
+        .column-list { max-height: 300px; overflow-y: auto; margin-bottom: 20px; }
+        
+        .column-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .column-item input { margin-right: 10px; width: 18px; height: 18px; cursor: pointer; }
+        .column-item label { cursor: pointer; flex: 1; }
+        
+        .selector-buttons { display: flex; gap: 10px; justify-content: flex-end; }
+        
+        /* PakePlus 兼容 - 小窗口使用div模拟 */
+        .floating-mask {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 20001;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .floating-window {
+            width: 480px;
+            max-width: 90%;
+            background: var(--card-white);
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            max-height: 80vh;
+        }
+        
+        .floating-header {
+            background: var(--accent-primary);
+            color: white;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+        }
+        
+        .floating-title { font-size: 14px; font-weight: 500; }
+        .floating-controls button { background: rgba(255,255,255,0.2); border: none; color: white; padding: 4px 10px; border-radius: 4px; cursor: pointer; margin-left: 6px; }
+        .floating-content { flex: 1; overflow-y: auto; padding: 12px; max-height: 60vh; }
+        .floating-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .floating-table th, .floating-table td { border: 1px solid var(--border-color); padding: 6px 8px; text-align: left; }
+        .floating-table th { background: var(--bg-secondary); }
+        .floating-checkbox { text-align: center; width: 40px; }
+        .floating-remark-section { margin-top: 12px; padding: 10px; background: var(--bg-secondary); border-radius: 8px; }
+        .floating-remark-header { display: flex; justify-content: space-between; margin-bottom: 6px; flex-wrap: wrap; }
+        .floating-remark-toolbar button { background: var(--accent-primary); border: none; color: white; padding: 2px 6px; border-radius: 4px; font-size: 9px; cursor: pointer; }
+        .floating-remark-editor { width: 100%; min-height: 60px; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); font-size: 11px; resize: vertical; background: var(--card-white); }
+        .empty-tip { text-align: center; padding: 30px; color: var(--text-light); }
+    </style>
+</head>
+<body class="theme-1">
+<div id="app">
+    <div id="userInfoBar" class="user-info-bar" style="display: none;">
+        <span class="user-name" id="userNameDisplay"></span>
+        <button class="logout-btn" onclick="logout()">退出登录</button>
+    </div>
+    <div class="tabs-container" id="tabsContainer" style="display: none;"></div>
+    <div class="main-container" id="mainContainer" style="display: none;"></div>
+</div>
+
+<!-- 抽屉式主题面板 -->
+<div id="themeDrawerPanel" class="theme-drawer-panel">
+    <div class="theme-drawer-header">
+        <span>🎨 诗意背景</span>
+        <button class="theme-drawer-close" onclick="closeThemeDrawer()">×</button>
+    </div>
+    <div class="theme-drawer-list" id="themeDrawerList"></div>
+</div>
+
+<!-- 小窗口遮罩 -->
+<div id="floatingMask" class="floating-mask">
+    <div id="floatingWindow" class="floating-window">
+        <div class="floating-header" id="floatingHeader">
+            <span class="floating-title" id="floatingTitle">小窗口</span>
+            <div class="floating-controls">
+                <button onclick="closeFloatingWindow()">关闭</button>
+            </div>
+        </div>
+        <div class="floating-content" id="floatingContent"></div>
+    </div>
+</div>
+
+<div id="colorPickerModal" class="color-picker-modal">
+    <div class="color-picker-content">
+        <div class="color-picker-title" id="colorPickerTitle">选择颜色</div>
+        <div class="color-grid" id="colorGrid"></div>
+        <div class="custom-color">
+            <input type="color" id="customColorInput" value="#0066ff">
+            <div class="color-preview" id="colorPreview"></div>
+        </div>
+        <div class="color-picker-buttons">
+            <button onclick="closeColorPicker()" class="secondary">取消</button>
+            <button onclick="confirmColorPick()">确定</button>
+        </div>
+    </div>
+</div>
+
+<div id="columnSelectorModal" class="column-selector-modal">
+    <div class="column-selector-content">
+        <div class="column-selector-title">选择小窗口显示的列</div>
+        <div class="column-list" id="columnList"></div>
+        <div class="selector-buttons">
+            <button onclick="closeColumnSelector()" class="secondary">取消</button>
+            <button onclick="confirmColumnSelect()">确定并打开小窗口</button>
+        </div>
+    </div>
+</div>
+
+<div class="small-window-btn" id="smallWindowBtn" style="display: none;">🪟 小窗口模式</div>
+
+<script>
+    // 主题配置
+    const themes = [
+        { id: 1, name: '雾里看花', color1: '#F3F0E9', color2: '#9CAF88' },
+        { id: 2, name: '烟雨江南', color1: '#E8EDF2', color2: '#7D8C7F' },
+        { id: 3, name: '青山远黛', color1: '#E8EFE5', color2: '#8BA384' },
+        { id: 4, name: '落樱缤纷', color1: '#F5EDEF', color2: '#C9A9B4' },
+        { id: 5, name: '紫藤花语', color1: '#EBE4E8', color2: '#B5A0B0' },
+        { id: 6, name: '晨雾松林', color1: '#E5E8E3', color2: '#A0B0A0' },
+        { id: 7, name: '秋日私语', color1: '#F0EAE3', color2: '#C4A882' },
+        { id: 8, name: '月夜星空', color1: '#E3E6EE', color2: '#8E9EBB' },
+        { id: 9, name: '暖阳午后', color1: '#EDE5DF', color2: '#B89A8A' },
+        { id: 10, name: '清泉石上', color1: '#E2E6E0', color2: '#90A89A' }
+    ];
+    
+    let currentThemeId = 1;
+    let currentUser = null;
+    let memos = {};
+    let currentMemoId = null;
+    let nextId = 1;
+    let pendingColorCallback = null;
+    let selectedColumns = [];
+    let isFloatingOpen = false;
+    
+    const presetColors = ['#000000', '#333333', '#666666', '#999999', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7B731', '#FF9F4A', '#A8E6CF', '#FFD3B6', '#FF8B94', '#0066ff', '#28a745', '#dc3545', '#fd7e14'];
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    function stripHtml(html) {
+        if (!html) return '';
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        return tmp.textContent || tmp.innerText || '';
+    }
+    
+    function getTodayString() {
+        const today = new Date();
+        return `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+    }
+    
+    function initDefaultMemo() {
+        return {
+            id: 'memo_1',
+            name: '我的备忘录',
+            headers: ['任务名称', '优先级', '截止日期'],
+            rows: [
+                { cells: ['撰写周报', '高', getTodayString()], completed: false, bgColor: '#ffffff' },
+                { cells: ['整理文档', '中', getTodayString()], completed: false, bgColor: '#ffffff' },
+                { cells: ['团队会议', '高', getTodayString()], completed: false, bgColor: '#ffffff' }
+            ],
+            remark: '<p>📌 欢迎使用智能备忘录！</p>'
+        };
+    }
+    
+    function changeTheme(themeId) {
+        currentThemeId = themeId;
+        document.body.className = `theme-${themeId}`;
+        if (currentUser) localStorage.setItem(`user_${currentUser.id}_theme`, themeId);
+        // 更新抽屉中的选中状态
+        document.querySelectorAll('.theme-drawer-item').forEach(item => {
+            if (parseInt(item.dataset.id) === themeId) item.classList.add('active');
+            else item.classList.remove('active');
+        });
+        closeThemeDrawer();
+    }
+    
+    function initThemeDrawer() {
+        const container = document.getElementById('themeDrawerList');
+        container.innerHTML = '';
+        themes.forEach(theme => {
+            const item = document.createElement('div');
+            item.className = 'theme-drawer-item';
+            item.dataset.id = theme.id;
+            if (theme.id === currentThemeId) item.classList.add('active');
+            item.onclick = () => changeTheme(theme.id);
+            item.innerHTML = `<div class="theme-drawer-color" style="background: linear-gradient(135deg, ${theme.color1}, ${theme.color2});"></div><div class="theme-drawer-name">${theme.name}</div>`;
+            container.appendChild(item);
+        });
+    }
+    
+    function openThemeDrawer() { document.getElementById('themeDrawerPanel').classList.add('open'); }
+    function closeThemeDrawer() { document.getElementById('themeDrawerPanel').classList.remove('open'); }
+    
+    // 账号系统
+    function loadUsers() { return JSON.parse(localStorage.getItem('memo_users') || '{}'); }
+    function saveUsers(users) { localStorage.setItem('memo_users', JSON.stringify(users)); }
+    
+    function register(id, password, question, answer) {
+        const users = loadUsers();
+        if (users[id]) { alert('ID 已注册'); return false; }
+        users[id] = { password: password, securityQuestion: question, securityAnswer: answer };
+        saveUsers(users);
+        return true;
+    }
+    
+    function login(id, password) {
+        const users = loadUsers();
+        if (!users[id]) { alert('账号不存在'); return false; }
+        if (users[id].password !== password) { alert('密码错误'); return false; }
+        currentUser = { id: id };
+        localStorage.setItem('current_user', id);
+        const savedData = localStorage.getItem(`user_${id}_memos`);
+        if (savedData) memos = JSON.parse(savedData);
+        else { const defaultMemo = initDefaultMemo(); memos = { [defaultMemo.id]: defaultMemo }; }
+        nextId = Math.max(...Object.keys(memos).map(k => parseInt(k.split('_')[1]) || 0), 0) + 1;
+        currentMemoId = Object.keys(memos)[0];
+        const savedTheme = localStorage.getItem(`user_${id}_theme`);
+        if (savedTheme) changeTheme(parseInt(savedTheme));
+        else changeTheme(1);
+        render();
+        document.getElementById('userInfoBar').style.display = 'flex';
+        document.getElementById('tabsContainer').style.display = 'flex';
+        document.getElementById('mainContainer').style.display = 'block';
+        document.getElementById('smallWindowBtn').style.display = 'block';
+        document.getElementById('userNameDisplay').innerText = id;
+        return true;
+    }
+    
+    function logout() {
+        if (isFloatingOpen) closeFloatingWindow();
+        currentUser = null;
+        localStorage.removeItem('current_user');
+        document.getElementById('userInfoBar').style.display = 'none';
+        document.getElementById('tabsContainer').style.display = 'none';
+        document.getElementById('mainContainer').style.display = 'none';
+        document.getElementById('smallWindowBtn').style.display = 'none';
+        showAuthPage();
+    }
+    
+    function saveUserData() { if (currentUser) localStorage.setItem(`user_${currentUser.id}_memos`, JSON.stringify(memos)); }
+    function saveToLocal() { saveUserData(); }
+    
+    function showAuthPage() {
+        const authHtml = `<div id="authContainer" class="auth-overlay"><div id="loginPage" class="auth-container"><div class="auth-title">📝 智能备忘录</div><input type="text" id="loginId" class="auth-input" placeholder="ID" autocomplete="off"><input type="password" id="loginPassword" class="auth-input" placeholder="密码"><button class="auth-btn" onclick="handleLogin()">登录</button><div class="auth-link" onclick="showRegisterPage()">还没有账号？<span>注册新账号</span></div><div class="auth-link" onclick="showForgotPage()"><span>忘记密码？</span></div></div></div>`;
+        const oldAuth = document.getElementById('authContainer');
+        if (oldAuth) oldAuth.remove();
+        document.getElementById('app').insertAdjacentHTML('afterbegin', authHtml);
+    }
+    
+    function showRegisterPage() {
+        const container = document.getElementById('authContainer');
+        container.innerHTML = `<div class="auth-container"><div class="auth-title">📝 注册新账号</div><input type="text" id="regId" class="auth-input" placeholder="ID"><input type="password" id="regPassword" class="auth-input" placeholder="密码"><input type="text" id="regQuestion" class="auth-input" placeholder="密保问题（例如：我的小学名称）"><input type="text" id="regAnswer" class="auth-input" placeholder="密保答案"><button class="auth-btn" onclick="handleRegister()">注册</button><div class="auth-link" onclick="showAuthPage()"><span>返回登录</span></div></div>`;
+    }
+    
+    function showForgotPage() {
+        const container = document.getElementById('authContainer');
+        container.innerHTML = `<div class="auth-container"><div class="auth-title">🔐 找回密码</div><input type="text" id="forgotId" class="auth-input" placeholder="ID"><button class="auth-btn" onclick="checkSecurityQuestion()">下一步</button><div class="auth-link" onclick="showAuthPage()"><span>返回登录</span></div></div>`;
+    }
+    
+    function checkSecurityQuestion() {
+        const id = document.getElementById('forgotId').value.trim();
+        if (!id) { alert('请输入ID'); return; }
+        const users = loadUsers();
+        if (!users[id]) { alert('账号不存在'); return; }
+        const container = document.getElementById('authContainer');
+        container.innerHTML = `<div class="auth-container"><div class="auth-title">🔐 验证密保</div><div style="margin-bottom:16px;padding:12px;background:var(--bg-secondary);border-radius:8px;">密保问题：${users[id].securityQuestion}</div><input type="text" id="securityAnswer" class="auth-input" placeholder="密保答案"><input type="password" id="newPassword" class="auth-input" placeholder="新密码"><button class="auth-btn" onclick="handleReset('${id}')">重置密码</button><div class="auth-link" onclick="showAuthPage()"><span>返回登录</span></div></div>`;
+    }
+    
+    function handleReset(id) {
+        const answer = document.getElementById('securityAnswer').value.trim();
+        const newPassword = document.getElementById('newPassword').value;
+        if (!answer || !newPassword) { alert('请填写完整信息'); return; }
+        const users = loadUsers();
+        if (users[id] && users[id].securityAnswer === answer) {
+            users[id].password = newPassword;
+            saveUsers(users);
+            alert('密码重置成功！请登录');
+            showAuthPage();
+        } else { alert('密保答案错误'); }
+    }
+    
+    function handleRegister() {
+        const id = document.getElementById('regId').value.trim();
+        const password = document.getElementById('regPassword').value;
+        const question = document.getElementById('regQuestion').value.trim();
+        const answer = document.getElementById('regAnswer').value.trim();
+        if (!id || !password || !question || !answer) { alert('请填写完整信息'); return; }
+        if (register(id, password, question, answer)) { alert('注册成功！请登录'); showAuthPage(); }
+        else { alert('ID 已注册，请重新输入'); showRegisterPage(); }
+    }
+    
+    function handleLogin() {
+        const id = document.getElementById('loginId').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        if (!id || !password) { alert('请输入ID和密码'); return; }
+        if (login(id, password)) { const authContainer = document.getElementById('authContainer'); if (authContainer) authContainer.remove(); }
+    }
+    
+    function checkAutoLogin() {
+        const savedUser = localStorage.getItem('current_user');
+        if (savedUser) {
+            const users = loadUsers();
+            if (users[savedUser]) { login(savedUser, users[savedUser].password); return true; }
+        }
+        return false;
+    }
+    
+    // 备注栏功能
+    function getActiveRemarkEditor() {
+        const activeMemo = document.querySelector('.memo-content.active');
+        if (activeMemo) {
+            const id = activeMemo.id.replace('memo-', '');
+            const editor = document.getElementById(`remark-editor-${id}`);
+            return { editor, id };
+        }
+        return { editor: null, id: null };
+    }
+    
+    function formatRemarkBold() { const { editor } = getActiveRemarkEditor(); if (editor) { document.execCommand('bold', false, null); saveCurrentRemark(); } }
+    function formatRemarkItalic() { const { editor } = getActiveRemarkEditor(); if (editor) { document.execCommand('italic', false, null); saveCurrentRemark(); } }
+    function formatRemarkUnderline() { const { editor } = getActiveRemarkEditor(); if (editor) { document.execCommand('underline', false, null); saveCurrentRemark(); } }
+    
+    function changeSelectedTextColor() {
+        const { editor } = getActiveRemarkEditor();
+        if (!editor) { alert('请先点击备注栏'); return; }
+        editor.focus();
+        const selection = window.getSelection();
+        if (!selection || selection.isCollapsed || selection.rangeCount === 0) { alert('请先选中要改变颜色的文字'); return; }
+        showColorPicker('选择文字颜色', '#000000', (color) => {
+            editor.focus();
+            document.execCommand('styleWithCSS', true, true);
+            document.execCommand('foreColor', false, color);
+            saveCurrentRemark();
+        });
+    }
+    
+    function saveCurrentRemark() {
+        const { editor, id } = getActiveRemarkEditor();
+        if (editor && memos[id]) { memos[id].remark = editor.innerHTML; saveToLocal(); }
+    }
+    
+    function showColorPicker(title, currentColor, callback) {
+        pendingColorCallback = callback;
+        const modal = document.getElementById('colorPickerModal');
+        document.getElementById('colorPickerTitle').textContent = title;
+        const colorGrid = document.getElementById('colorGrid');
+        colorGrid.innerHTML = '';
+        presetColors.forEach(color => {
+            const div = document.createElement('div');
+            div.className = 'color-option';
+            div.style.backgroundColor = color;
+            div.onclick = () => { document.getElementById('customColorInput').value = color; document.getElementById('colorPreview').style.backgroundColor = color; };
+            colorGrid.appendChild(div);
+        });
+        document.getElementById('customColorInput').value = currentColor;
+        document.getElementById('colorPreview').style.backgroundColor = currentColor;
+        modal.style.display = 'flex';
+    }
+    
+    function closeColorPicker() { document.getElementById('colorPickerModal').style.display = 'none'; pendingColorCallback = null; }
+    function confirmColorPick() { if (pendingColorCallback) pendingColorCallback(document.getElementById('customColorInput').value); closeColorPicker(); }
+    
+    // 小窗口功能（使用div模拟，兼容PakePlus）
+    function showColumnSelector() {
+        const memo = memos[currentMemoId];
+        const columnList = document.getElementById('columnList');
+        columnList.innerHTML = '';
+        memo.headers.forEach((header, idx) => {
+            const div = document.createElement('div');
+            div.className = 'column-item';
+            div.innerHTML = `<input type="checkbox" id="col_${idx}" value="${idx}" checked><label for="col_${idx}">${escapeHtml(header)}</label>`;
+            columnList.appendChild(div);
+        });
+        document.getElementById('columnSelectorModal').style.display = 'flex';
+    }
+    
+    function closeColumnSelector() { document.getElementById('columnSelectorModal').style.display = 'none'; }
+    
+    function confirmColumnSelect() {
+        const checkboxes = document.querySelectorAll('#columnList input[type="checkbox"]');
+        selectedColumns = [];
+        checkboxes.forEach(cb => { if (cb.checked) selectedColumns.push(parseInt(cb.value)); });
+        if (selectedColumns.length === 0) { alert('请至少选择一列'); return; }
+        closeColumnSelector();
+        openFloatingWindow(currentMemoId);
+    }
+    
+    function openFloatingWindow(memoId) {
+        const memo = memos[memoId];
+        const activeRows = memo.rows.filter(row => !row.completed);
+        
+        const headersHtml = selectedColumns.map(idx => `<th>${escapeHtml(memo.headers[idx])}</th>`).join('');
+        const rowsHtml = activeRows.map((row, idx) => {
+            const originalIdx = memo.rows.findIndex(r => r === row);
+            return `<tr>${selectedColumns.map(colIdx => `<td>${escapeHtml(row.cells[colIdx] || '')}</td>`).join('')}<td class="floating-checkbox"><input type="checkbox" onchange="toggleTaskCompleteInFloating(${originalIdx}, this)"></td></tr>`;
+        }).join('');
+        
+        const contentHtml = activeRows.length === 0 ? '<div class="empty-tip">✅ 所有任务都已完成！</div>' :
+            `<table class="floating-table"><thead><tr>${headersHtml}<th class="floating-checkbox">完成</th></tr></thead><tbody>${rowsHtml}</tbody></table>`;
+        
+        contentHtml += `<div class="floating-remark-section"><div class="floating-remark-header"><div class="floating-remark-title">📝 备注栏</div><div class="floating-remark-toolbar"><button onclick="formatRemarkInFloating('bold')"><b>粗体</b></button><button onclick="formatRemarkInFloating('italic')"><i>斜体</i></button><button onclick="formatRemarkInFloating('underline')"><u>下划线</u></button><button onclick="changeRemarkColorInFloating()">🎨 文字颜色</button></div></div><div id="floatingRemarkEditor" class="floating-remark-editor" contenteditable="true" onblur="saveRemarkInFloating()">${memo.remark || ''}</div></div>`;
+        
+        document.getElementById('floatingTitle').innerHTML = `📋 ${escapeHtml(memo.name)} (未完成任务)`;
+        document.getElementById('floatingContent').innerHTML = contentHtml;
+        document.getElementById('floatingMask').style.display = 'flex';
+        isFloatingOpen = true;
+        
+        // 保存memoId供小窗口使用
+        window.floatingMemoId = memoId;
+    }
+    
+    function closeFloatingWindow() {
+        document.getElementById('floatingMask').style.display = 'none';
+        isFloatingOpen = false;
+    }
+    
+    function toggleTaskCompleteInFloating(rowIdx, checkbox) {
+        const isChecked = checkbox.checked;
+        const memoId = window.floatingMemoId;
+        if (memos[memoId] && memos[memoId].rows[rowIdx]) {
+            memos[memoId].rows[rowIdx].completed = isChecked;
+            saveToLocal();
+            // 更新主窗口
+            const row = document.querySelector(`#memo-${memoId} tbody tr:nth-child(${rowIdx + 1})`);
+            if (row) {
+                row.querySelectorAll('td:not(.checkbox-col):not(.action-col)').forEach(cell => {
+                    if (isChecked) cell.classList.add('row-completed');
+                    else cell.classList.remove('row-completed');
+                });
+                const cb = row.querySelector('.task-checkbox');
+                if (cb) cb.checked = isChecked;
+            }
+        }
+        if (isChecked) checkbox.closest('tr').classList.add('completed-row');
+    }
+    
+    function formatRemarkInFloating(cmd) {
+        const editor = document.getElementById('floatingRemarkEditor');
+        if (editor) { editor.focus(); document.execCommand(cmd, false, null); saveRemarkInFloating(); }
+    }
+    
+    function changeRemarkColorInFloating() {
+        const editor = document.getElementById('floatingRemarkEditor');
+        if (!editor) return;
+        editor.focus();
+        const sel = window.getSelection();
+        if (!sel || sel.isCollapsed) { alert('请先选中文字'); return; }
+        showColorPicker('选择文字颜色', '#000000', (color) => {
+            editor.focus();
+            document.execCommand('foreColor', false, color);
+            saveRemarkInFloating();
+        });
+    }
+    
+    function saveRemarkInFloating() {
+        const editor = document.getElementById('floatingRemarkEditor');
+        if (editor && window.floatingMemoId) {
+            memos[window.floatingMemoId].remark = editor.innerHTML;
+            saveToLocal();
+        }
+    }
+    
+    // 渲染函数
+    function render() {
+        renderTabs();
+        renderMemos();
+    }
+    
+    function renderTabs() {
+        const container = document.getElementById('tabsContainer');
+        container.innerHTML = '';
+        Object.values(memos).forEach(memo => {
+            const tab = document.createElement('button');
+            tab.className = `tab ${currentMemoId === memo.id ? 'active' : ''}`;
+            tab.innerHTML = `${escapeHtml(memo.name)}${Object.keys(memos).length > 1 ? '<button class="delete-tab" data-id="' + memo.id + '">×</button>' : ''}`;
+            tab.onclick = (e) => { if (!e.target.classList.contains('delete-tab')) switchMemo(memo.id); };
+            container.appendChild(tab);
+        });
+        const addBtn = document.createElement('button');
+        addBtn.className = 'add-tab-btn';
+        addBtn.innerHTML = '+ 新建备忘录';
+        addBtn.onclick = addNewMemo;
+        container.appendChild(addBtn);
+        document.querySelectorAll('.delete-tab').forEach(btn => { btn.onclick = (e) => { e.stopPropagation(); deleteMemo(btn.dataset.id); }; });
+    }
+    
+    function renderMemos() {
+        const container = document.getElementById('mainContainer');
+        container.innerHTML = '';
+        Object.values(memos).forEach(memo => {
+            const div = document.createElement('div');
+            div.className = `memo-content ${currentMemoId === memo.id ? 'active' : ''}`;
+            div.id = `memo-${memo.id}`;
+            div.innerHTML = generateMemoHTML(memo);
+            container.appendChild(div);
+        });
+    }
+    
+    function generateMemoHTML(memo) {
+        return `<div class="toolbar"><input type="text" value="${escapeHtml(memo.name)}" onchange="updateMemoName('${memo.id}', this.value)" style="padding:6px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--card-white);"><button onclick="addRow('${memo.id}')">➕ 添加行</button><button onclick="addColumn('${memo.id}')">📌 添加列</button><button onclick="exportToExcel('${memo.id}')" class="success">📊 导出Excel</button><div class="import-area"><button onclick="triggerImport('${memo.id}')">📂 导入Excel</button><input type="file" id="importFile-${memo.id}" accept=".xls,.xlsx,.csv" style="display:none;" onchange="handleImportFile(event, '${memo.id}')"></div><button onclick="saveTemplate('${memo.id}')" class="secondary">💾 保存模板</button><button onclick="loadTemplate('${memo.id}')" class="secondary">📂 加载模板</button></div><div class="table-wrapper"><table><thead><tr>${memo.headers.map((h, idx) => `<th><span contenteditable="true" onblur="updateHeader('${memo.id}',${idx},this.innerText)">${escapeHtml(h)}</span><button class="btn-icon" onclick="deleteColumn('${memo.id}',${idx})">🗑️</button></th>`).join('')}<th class="checkbox-col">状态</th><th class="action-col">操作</th></tr></thead><tbody>${memo.rows.map((row, rowIdx) => `<tr style="background-color:${row.bgColor || '#ffffff'}">${row.cells.map((cell, colIdx) => `<td contenteditable="true" onblur="updateCell('${memo.id}',${rowIdx},${colIdx},this.innerText)" class="${row.completed ? 'row-completed' : ''}">${escapeHtml(cell)}</td>`).join('')}<td class="checkbox-col"><input type="checkbox" class="task-checkbox" ${row.completed ? 'checked' : ''} onchange="toggleComplete('${memo.id}',${rowIdx},this.checked)"></td><td class="action-col"><button class="btn-icon" onclick="deleteRow('${memo.id}',${rowIdx})">🗑️</button><button class="btn-icon" onclick="showRowColorPicker('${memo.id}',${rowIdx})">🎨</button></td></tr>`).join('')}</tbody></table></div><div class="remark-section"><div class="remark-header"><label><strong>📝 备注栏：</strong></label><div class="remark-toolbar"><button onclick="formatRemarkBold()" class="small-btn"><b>粗体</b></button><button onclick="formatRemarkItalic()" class="small-btn"><i>斜体</i></button><button onclick="formatRemarkUnderline()" class="small-btn"><u>下划线</u></button><button onclick="changeSelectedTextColor()" class="small-btn">🎨 文字颜色</button></div></div><div id="remark-editor-${memo.id}" class="remark-editor" contenteditable="true" onblur="saveCurrentRemark()">${memo.remark || ''}</div><div class="footer-bar"><span class="save-status">自动保存</span></div></div><div class="theme-section"><div class="theme-section-title">🎨 背景主题</div><div class="theme-circle-btn" onclick="openThemeDrawer()">🎨</div></div>`;
+    }
+    
+    function switchMemo(id) { currentMemoId = id; render(); }
+    function addNewMemo() { const newId = `memo_${nextId++}`; memos[newId] = { id: newId, name: `备忘录 ${nextId-1}`, headers: ['任务', '状态'], rows: [{ cells: ['示例任务', '进行中'], completed: false, bgColor: '#ffffff' }], remark: '<p>新备忘录备注</p>' }; currentMemoId = newId; saveToLocal(); render(); }
+    function deleteMemo(id) { if (Object.keys(memos).length <= 1) { alert('至少保留一个备忘录'); return; } if (confirm('确定删除这个备忘录吗？')) { delete memos[id]; if (currentMemoId === id) currentMemoId = Object.keys(memos)[0]; saveToLocal(); render(); } }
+    function updateMemoName(id, newName) { if (memos[id]) { memos[id].name = newName; saveToLocal(); renderTabs(); } }
+    function addRow(id) { const memo = memos[id]; memo.rows.push({ cells: new Array(memo.headers.length).fill('新任务'), completed: false, bgColor: '#ffffff' }); saveToLocal(); renderMemos(); }
+    function deleteRow(id, rowIdx) { if (confirm('确定删除这一行吗？')) { memos[id].rows.splice(rowIdx, 1); saveToLocal(); renderMemos(); } }
+    function addColumn(id) { const memo = memos[id]; memo.headers.push(`新列 ${memo.headers.length + 1}`); memo.rows.forEach(row => row.cells.push('新内容')); saveToLocal(); renderMemos(); }
+    function deleteColumn(id, colIdx) { if (memos[id].headers.length <= 1) { alert('至少保留一列'); return; } if (confirm('确定删除这一列吗？')) { memos[id].headers.splice(colIdx, 1); memos[id].rows.forEach(row => row.cells.splice(colIdx, 1)); saveToLocal(); renderMemos(); } }
+    function updateHeader(id, colIdx, newValue) { memos[id].headers[colIdx] = newValue; saveToLocal(); }
+    function updateCell(id, rowIdx, colIdx, newValue) { memos[id].rows[rowIdx].cells[colIdx] = newValue; saveToLocal(); }
+    function toggleComplete(id, rowIdx, isChecked) { memos[id].rows[rowIdx].completed = isChecked; const row = document.querySelector(`#memo-${id} tbody tr:nth-child(${rowIdx+1})`); if (row) { row.querySelectorAll('td:not(.checkbox-col):not(.action-col)').forEach(cell => { if (isChecked) cell.classList.add('row-completed'); else cell.classList.remove('row-completed'); }); } saveToLocal(); }
+    function showRowColorPicker(id, rowIdx) { const color = prompt('输入行背景色(如 #ffcccc 或 lightblue):', memos[id].rows[rowIdx].bgColor || '#ffffff'); if (color) { memos[id].rows[rowIdx].bgColor = color; saveToLocal(); renderMemos(); } }
+    
+    // Excel功能
+    function exportToExcel(id) {
+        const memo = memos[id];
+        const fileName = `${currentUser.id}_${getTodayString()}`;
+        const data = [[...memo.headers, '完成状态'], ...memo.rows.map(row => [...row.cells, row.completed ? '✓ 已完成' : '○ 未完成']), [''], ['【备注信息】'], [''], ...(stripHtml(memo.remark || '').split('\n').filter(l => l.trim()).map(l => [l])), [''], ['----------------------------------------'], [`导出时间：${new Date().toLocaleString()}`], [`导出自：${currentUser.id}`]];
+        let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<?mso-application progid="Excel.Sheet"?>\n<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="' + fileName.substring(0,31) + '"><Table>\n';
+        data.forEach(row => { xml += '<Row>\n' + row.map(cell => '<Cell><Data ss:Type="String">' + String(cell || '').replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])) + '</Data></Cell>\n').join('') + '</Row>\n'; });
+        xml += '</Table></Worksheet></Workbook>';
+        const blob = new Blob([xml], { type: 'application/vnd.ms-excel' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `${fileName}.xls`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+        alert('Excel导出成功！');
+    }
+    
+    function triggerImport(memoId) { document.getElementById(`importFile-${memoId}`).click(); }
+    function handleImportFile(event, targetMemoId) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const baseName = file.name.replace(/\.[^/.]+$/, '').substring(0, 30);
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const newId = `memo_${nextId++}`;
+            memos[newId] = { id: newId, name: baseName, headers: ['导入的任务', '状态'], rows: [{ cells: ['导入的数据', '新'], completed: false, bgColor: '#ffffff' }], remark: '<p>导入的备忘录</p>' };
+            currentMemoId = newId;
+            saveToLocal();
+            render();
+            alert(`导入成功！已创建新备忘录：${baseName}`);
+        };
+        reader.readAsText(file, 'UTF-8');
+        event.target.value = '';
+    }
+    
+    function saveTemplate(id) {
+        const memo = memos[id];
+        const name = prompt('请输入模板名称:', memo.name + '_模板');
+        if (name) {
+            const template = {
+                name: name,
+                headers: [...memo.headers],
+                rows: memo.rows.map(row => ({
+                    cells: [...row.cells],
+                    completed: row.completed,
+                    bgColor: row.bgColor
+                })),
+                remark: memo.remark
+            };
+            let templates = JSON.parse(localStorage.getItem(`user_${currentUser.id}_templates`) || '[]');
+            templates.push(template);
+            localStorage.setItem(`user_${currentUser.id}_templates`, JSON.stringify(templates));
+            alert('模板保存成功！');
+        }
+    }
+    
+    function loadTemplate(id) {
+        let templates = JSON.parse(localStorage.getItem(`user_${currentUser.id}_templates`) || '[]');
+        if (templates.length === 0) { alert('暂无保存的模板'); return; }
+        let msg = '选择模板:\n';
+        templates.forEach((t, i) => msg += `${i+1}. ${t.name}\n`);
+        const idx = parseInt(prompt(msg)) - 1;
+        if (idx >= 0 && idx < templates.length) {
+            const t = templates[idx];
+            memos[id].headers = [...t.headers];
+            memos[id].rows = t.rows.map(row => ({
+                cells: [...row.cells],
+                completed: row.completed,
+                bgColor: row.bgColor || '#ffffff'
+            }));
+            memos[id].remark = t.remark;
+            saveToLocal();
+            render();
+            alert('模板加载成功！');
+        }
+    }
+    
+    // 暴露全局函数
+    window.changeTheme = changeTheme;
+    window.logout = logout;
+    window.handleLogin = handleLogin;
+    window.handleRegister = handleRegister;
+    window.showRegisterPage = showRegisterPage;
+    window.showForgotPage = showForgotPage;
+    window.checkSecurityQuestion = checkSecurityQuestion;
+    window.handleReset = handleReset;
+    window.showAuthPage = showAuthPage;
+    window.addRow = addRow;
+    window.deleteRow = deleteRow;
+    window.addColumn = addColumn;
+    window.deleteColumn = deleteColumn;
+    window.updateHeader = updateHeader;
+    window.updateCell = updateCell;
+    window.toggleComplete = toggleComplete;
+    window.saveCurrentRemark = saveCurrentRemark;
+    window.showRowColorPicker = showRowColorPicker;
+    window.exportToExcel = exportToExcel;
+    window.triggerImport = triggerImport;
+    window.handleImportFile = handleImportFile;
+    window.saveTemplate = saveTemplate;
+    window.loadTemplate = loadTemplate;
+    window.updateMemoName = updateMemoName;
+    window.formatRemarkBold = formatRemarkBold;
+    window.formatRemarkItalic = formatRemarkItalic;
+    window.formatRemarkUnderline = formatRemarkUnderline;
+    window.changeSelectedTextColor = changeSelectedTextColor;
+    window.showColorPicker = showColorPicker;
+    window.closeColorPicker = closeColorPicker;
+    window.confirmColorPick = confirmColorPick;
+    window.showColumnSelector = showColumnSelector;
+    window.closeColumnSelector = closeColumnSelector;
+    window.confirmColumnSelect = confirmColumnSelect;
+    window.openThemeDrawer = openThemeDrawer;
+    window.closeThemeDrawer = closeThemeDrawer;
+    window.closeFloatingWindow = closeFloatingWindow;
+    window.toggleTaskCompleteInFloating = toggleTaskCompleteInFloating;
+    window.formatRemarkInFloating = formatRemarkInFloating;
+    window.changeRemarkColorInFloating = changeRemarkColorInFloating;
+    window.saveRemarkInFloating = saveRemarkInFloating;
+    
+    // 初始化
+    document.getElementById('smallWindowBtn').addEventListener('click', showColumnSelector);
+    if (!checkAutoLogin()) showAuthPage();
+    initThemeDrawer();
+</script>
+</body>
+</html>
