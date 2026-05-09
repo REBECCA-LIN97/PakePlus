@@ -50,7 +50,6 @@
             padding: 32px;
             width: 400px;
             max-width: 90%;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
             border: 1px solid var(--border-color);
         }
         
@@ -234,7 +233,6 @@
         button.secondary { background: var(--accent-primary); }
         button.success { background: #28a745; }
         
-        /* 备注栏 */
         .remark-section {
             margin-top: 20px;
             padding: 16px;
@@ -271,7 +269,6 @@
         .footer-bar { margin-top: 10px; display: flex; justify-content: space-between; }
         .save-status { font-size: 12px; color: #28a745; }
         
-        /* 背景主题按钮 - 放置在备注栏下方 */
         .theme-section {
             margin-top: 16px;
             padding: 12px;
@@ -304,7 +301,6 @@
         
         .theme-circle-btn:hover { transform: scale(1.05); }
         
-        /* 抽屉式主题面板（从右侧弹出） */
         .theme-drawer-panel {
             position: fixed;
             right: -300px;
@@ -470,54 +466,174 @@
         
         .selector-buttons { display: flex; gap: 10px; justify-content: flex-end; }
         
-        /* PakePlus 兼容 - 小窗口使用div模拟 */
-        .floating-mask {
+        /* 小窗口样式 - 独立且完整 */
+        .floating-window-container {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 20001;
-            display: none;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .floating-window {
-            width: 480px;
-            max-width: 90%;
+            width: 520px;
+            min-width: 350px;
             background: var(--card-white);
             border-radius: 16px;
             box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-            display: flex;
+            z-index: 20001;
+            display: none;
             flex-direction: column;
             overflow: hidden;
-            max-height: 80vh;
+            border: 1px solid var(--border-color);
+            resize: both;
         }
         
         .floating-header {
             background: var(--accent-primary);
             color: white;
-            padding: 12px;
+            padding: 12px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: move;
+            user-select: none;
+            flex-shrink: 0;
         }
         
         .floating-title { font-size: 14px; font-weight: 500; }
-        .floating-controls button { background: rgba(255,255,255,0.2); border: none; color: white; padding: 4px 10px; border-radius: 4px; cursor: pointer; margin-left: 6px; }
-        .floating-content { flex: 1; overflow-y: auto; padding: 12px; max-height: 60vh; }
-        .floating-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        .floating-table th, .floating-table td { border: 1px solid var(--border-color); padding: 6px 8px; text-align: left; }
-        .floating-table th { background: var(--bg-secondary); }
-        .floating-checkbox { text-align: center; width: 40px; }
-        .floating-remark-section { margin-top: 12px; padding: 10px; background: var(--bg-secondary); border-radius: 8px; }
-        .floating-remark-header { display: flex; justify-content: space-between; margin-bottom: 6px; flex-wrap: wrap; }
-        .floating-remark-toolbar button { background: var(--accent-primary); border: none; color: white; padding: 2px 6px; border-radius: 4px; font-size: 9px; cursor: pointer; }
-        .floating-remark-editor { width: 100%; min-height: 60px; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); font-size: 11px; resize: vertical; background: var(--card-white); }
-        .empty-tip { text-align: center; padding: 30px; color: var(--text-light); }
+        
+        .floating-controls { display: flex; gap: 8px; }
+        .floating-controls button { 
+            background: rgba(255,255,255,0.2); 
+            border: none; 
+            color: white; 
+            padding: 4px 12px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 12px;
+        }
+        .floating-controls button:hover { background: rgba(255,255,255,0.3); }
+        
+        .floating-content { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 16px; 
+            max-height: 450px;
+            background: var(--bg-primary);
+        }
+        
+        /* 小窗口表格样式 */
+        .floating-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            background: var(--card-white);
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .floating-table th, .floating-table td {
+            border: 1px solid var(--border-color);
+            padding: 8px 10px;
+            text-align: left;
+            vertical-align: middle;
+        }
+        
+        .floating-table th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+        
+        .floating-checkbox {
+            text-align: center;
+            width: 50px;
+        }
+        
+        .floating-checkbox input {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+        
+        .floating-remark-section {
+            margin-top: 12px;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+        }
+        
+        .floating-remark-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .floating-remark-title {
+            font-weight: 600;
+            font-size: 12px;
+            color: var(--text-dark);
+        }
+        
+        .floating-remark-toolbar {
+            display: flex;
+            gap: 6px;
+        }
+        
+        .floating-remark-toolbar button {
+            background: var(--accent-primary);
+            border: none;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 10px;
+            cursor: pointer;
+        }
+        
+        .floating-remark-toolbar button:hover {
+            background: var(--accent-hover);
+        }
+        
+        .floating-remark-editor {
+            width: 100%;
+            min-height: 70px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-size: 12px;
+            resize: vertical;
+            background: var(--card-white);
+            color: var(--text-dark);
+            font-family: inherit;
+            line-height: 1.5;
+        }
+        
+        .floating-remark-editor:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+        
+        .empty-tip {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-light);
+            font-size: 14px;
+        }
+        
+        .resize-handle {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 16px;
+            height: 16px;
+            cursor: nw-resize;
+            background: linear-gradient(135deg, transparent 50%, var(--accent-primary) 50%);
+            border-radius: 0 0 8px 0;
+        }
+        
+        /* 已完成行样式 */
+        .floating-table .completed-row {
+            text-decoration: line-through;
+            opacity: 0.6;
+            background-color: var(--bg-secondary);
+        }
     </style>
 </head>
 <body class="theme-1">
@@ -539,17 +655,17 @@
     <div class="theme-drawer-list" id="themeDrawerList"></div>
 </div>
 
-<!-- 小窗口遮罩 -->
-<div id="floatingMask" class="floating-mask">
-    <div id="floatingWindow" class="floating-window">
-        <div class="floating-header" id="floatingHeader">
-            <span class="floating-title" id="floatingTitle">小窗口</span>
-            <div class="floating-controls">
-                <button onclick="closeFloatingWindow()">关闭</button>
-            </div>
+<!-- 独立小窗口 -->
+<div id="floatingWindow" class="floating-window-container">
+    <div class="floating-header" id="floatingHeader">
+        <span class="floating-title" id="floatingTitle">小窗口</span>
+        <div class="floating-controls">
+            <button onclick="minimizeFloatingWindow()">─</button>
+            <button onclick="closeFloatingWindow()">✕</button>
         </div>
-        <div class="floating-content" id="floatingContent"></div>
     </div>
+    <div class="floating-content" id="floatingContent"></div>
+    <div class="resize-handle" id="resizeHandle"></div>
 </div>
 
 <div id="colorPickerModal" class="color-picker-modal">
@@ -603,6 +719,9 @@
     let pendingColorCallback = null;
     let selectedColumns = [];
     let isFloatingOpen = false;
+    let floatingMemoId = null;
+    let isDragging = false;
+    let dragOffsetX = 0, dragOffsetY = 0;
     
     const presetColors = ['#000000', '#333333', '#666666', '#999999', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7B731', '#FF9F4A', '#A8E6CF', '#FFD3B6', '#FF8B94', '#0066ff', '#28a745', '#dc3545', '#fd7e14'];
     
@@ -646,7 +765,6 @@
         currentThemeId = themeId;
         document.body.className = `theme-${themeId}`;
         if (currentUser) localStorage.setItem(`user_${currentUser.id}_theme`, themeId);
-        // 更新抽屉中的选中状态
         document.querySelectorAll('.theme-drawer-item').forEach(item => {
             if (parseInt(item.dataset.id) === themeId) item.classList.add('active');
             else item.classList.remove('active');
@@ -670,6 +788,78 @@
     
     function openThemeDrawer() { document.getElementById('themeDrawerPanel').classList.add('open'); }
     function closeThemeDrawer() { document.getElementById('themeDrawerPanel').classList.remove('open'); }
+    
+    // 小窗口拖拽功能
+    function initFloatingDrag() {
+        const floating = document.getElementById('floatingWindow');
+        const header = document.getElementById('floatingHeader');
+        
+        header.addEventListener('mousedown', (e) => {
+            if (e.target.tagName === 'BUTTON') return;
+            isDragging = true;
+            const rect = floating.getBoundingClientRect();
+            dragOffsetX = e.clientX - rect.left;
+            dragOffsetY = e.clientY - rect.top;
+            floating.style.cursor = 'grabbing';
+            e.preventDefault();
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            let newLeft = e.clientX - dragOffsetX;
+            let newTop = e.clientY - dragOffsetY;
+            newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - floating.offsetWidth));
+            newTop = Math.max(0, Math.min(newTop, window.innerHeight - floating.offsetHeight));
+            floating.style.left = newLeft + 'px';
+            floating.style.top = newTop + 'px';
+            floating.style.right = 'auto';
+            floating.style.bottom = 'auto';
+        });
+        
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+            floating.style.cursor = '';
+        });
+        
+        // 调整大小功能
+        const resizeHandle = document.getElementById('resizeHandle');
+        let isResizing = false;
+        let startX, startY, startWidth, startHeight;
+        
+        resizeHandle.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            startWidth = floating.offsetWidth;
+            startHeight = floating.offsetHeight;
+            e.preventDefault();
+            e.stopPropagation();
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+            const newWidth = Math.max(350, startWidth + (e.clientX - startX));
+            const newHeight = Math.max(300, startHeight + (e.clientY - startY));
+            floating.style.width = newWidth + 'px';
+            floating.style.height = newHeight + 'px';
+        });
+        
+        document.addEventListener('mouseup', () => {
+            isResizing = false;
+        });
+    }
+    
+    function minimizeFloatingWindow() {
+        const floating = document.getElementById('floatingWindow');
+        const content = document.getElementById('floatingContent');
+        if (content.style.display === 'none') {
+            content.style.display = 'block';
+            floating.style.height = 'auto';
+        } else {
+            content.style.display = 'none';
+            floating.style.height = '45px';
+        }
+    }
     
     // 账号系统
     function loadUsers() { return JSON.parse(localStorage.getItem('memo_users') || '{}'); }
@@ -840,7 +1030,7 @@
     function closeColorPicker() { document.getElementById('colorPickerModal').style.display = 'none'; pendingColorCallback = null; }
     function confirmColorPick() { if (pendingColorCallback) pendingColorCallback(document.getElementById('customColorInput').value); closeColorPicker(); }
     
-    // 小窗口功能（使用div模拟，兼容PakePlus）
+    // 小窗口功能
     function showColumnSelector() {
         const memo = memos[currentMemoId];
         const columnList = document.getElementById('columnList');
@@ -868,40 +1058,96 @@
     function openFloatingWindow(memoId) {
         const memo = memos[memoId];
         const activeRows = memo.rows.filter(row => !row.completed);
+        floatingMemoId = memoId;
         
-        const headersHtml = selectedColumns.map(idx => `<th>${escapeHtml(memo.headers[idx])}</th>`).join('');
-        const rowsHtml = activeRows.map((row, idx) => {
+        // 构建表头
+        let headersHtml = '';
+        for (let idx of selectedColumns) {
+            headersHtml += `<th>${escapeHtml(memo.headers[idx])}</th>`;
+        }
+        headersHtml += '<th class="floating-checkbox">完成</th>';
+        
+        // 构建数据行
+        let rowsHtml = '';
+        for (let i = 0; i < activeRows.length; i++) {
+            const row = activeRows[i];
             const originalIdx = memo.rows.findIndex(r => r === row);
-            return `<tr>${selectedColumns.map(colIdx => `<td>${escapeHtml(row.cells[colIdx] || '')}</td>`).join('')}<td class="floating-checkbox"><input type="checkbox" onchange="toggleTaskCompleteInFloating(${originalIdx}, this)"></td></tr>`;
-        }).join('');
+            let cellsHtml = '';
+            for (let colIdx of selectedColumns) {
+                cellsHtml += `<td>${escapeHtml(row.cells[colIdx] || '')}</td>`;
+            }
+            cellsHtml += `<td class="floating-checkbox"><input type="checkbox" data-row="${originalIdx}" onchange="toggleTaskCompleteInFloating(this)"></td>`;
+            rowsHtml += `<tr data-original-idx="${originalIdx}">${cellsHtml}</tr>`;
+        }
         
-        const contentHtml = activeRows.length === 0 ? '<div class="empty-tip">✅ 所有任务都已完成！</div>' :
-            `<table class="floating-table"><thead><tr>${headersHtml}<th class="floating-checkbox">完成</th></tr></thead><tbody>${rowsHtml}</tbody></table>`;
+        let tableHtml = '';
+        if (activeRows.length === 0) {
+            tableHtml = '<div class="empty-tip">✅ 所有任务都已完成！</div>';
+        } else {
+            tableHtml = `<table class="floating-table"><thead><tr>${headersHtml}</thead><tbody>${rowsHtml}</tbody>}</table>`;
+        }
         
-        contentHtml += `<div class="floating-remark-section"><div class="floating-remark-header"><div class="floating-remark-title">📝 备注栏</div><div class="floating-remark-toolbar"><button onclick="formatRemarkInFloating('bold')"><b>粗体</b></button><button onclick="formatRemarkInFloating('italic')"><i>斜体</i></button><button onclick="formatRemarkInFloating('underline')"><u>下划线</u></button><button onclick="changeRemarkColorInFloating()">🎨 文字颜色</button></div></div><div id="floatingRemarkEditor" class="floating-remark-editor" contenteditable="true" onblur="saveRemarkInFloating()">${memo.remark || ''}</div></div>`;
+        // 备注栏
+        const remarkHtml = `
+            <div class="floating-remark-section">
+                <div class="floating-remark-header">
+                    <div class="floating-remark-title">📝 备注栏</div>
+                    <div class="floating-remark-toolbar">
+                        <button onclick="formatRemarkInFloating('bold')"><b>粗体</b></button>
+                        <button onclick="formatRemarkInFloating('italic')"><i>斜体</i></button>
+                        <button onclick="formatRemarkInFloating('underline')"><u>下划线</u></button>
+                        <button onclick="changeRemarkColorInFloating()">🎨 文字颜色</button>
+                    </div>
+                </div>
+                <div id="floatingRemarkEditor" class="floating-remark-editor" contenteditable="true" onblur="saveRemarkInFloating()">${memo.remark || ''}</div>
+            </div>
+        `;
         
         document.getElementById('floatingTitle').innerHTML = `📋 ${escapeHtml(memo.name)} (未完成任务)`;
-        document.getElementById('floatingContent').innerHTML = contentHtml;
-        document.getElementById('floatingMask').style.display = 'flex';
+        document.getElementById('floatingContent').innerHTML = tableHtml + remarkHtml;
+        
+        const floating = document.getElementById('floatingWindow');
+        floating.style.display = 'flex';
+        floating.style.left = (window.innerWidth - 520) / 2 + 'px';
+        floating.style.top = (window.innerHeight - 450) / 2 + 'px';
+        floating.style.width = '520px';
+        floating.style.height = 'auto';
         isFloatingOpen = true;
         
-        // 保存memoId供小窗口使用
-        window.floatingMemoId = memoId;
+        // 恢复内容显示
+        const contentDiv = document.getElementById('floatingContent');
+        contentDiv.style.display = 'block';
+        floating.style.height = 'auto';
+        
+        // 同步复选框状态
+        for (let i = 0; i < activeRows.length; i++) {
+            const row = activeRows[i];
+            const originalIdx = memo.rows.findIndex(r => r === row);
+            const checkbox = document.querySelector(`#floatingContent input[data-row="${originalIdx}"]`);
+            if (checkbox && row.completed) {
+                checkbox.checked = true;
+                const tr = checkbox.closest('tr');
+                if (tr) tr.classList.add('completed-row');
+            }
+        }
     }
     
     function closeFloatingWindow() {
-        document.getElementById('floatingMask').style.display = 'none';
+        document.getElementById('floatingWindow').style.display = 'none';
         isFloatingOpen = false;
+        floatingMemoId = null;
     }
     
-    function toggleTaskCompleteInFloating(rowIdx, checkbox) {
+    function toggleTaskCompleteInFloating(checkbox) {
+        const rowIdx = parseInt(checkbox.getAttribute('data-row'));
         const isChecked = checkbox.checked;
-        const memoId = window.floatingMemoId;
-        if (memos[memoId] && memos[memoId].rows[rowIdx]) {
-            memos[memoId].rows[rowIdx].completed = isChecked;
+        
+        if (memos[floatingMemoId] && memos[floatingMemoId].rows[rowIdx]) {
+            memos[floatingMemoId].rows[rowIdx].completed = isChecked;
             saveToLocal();
-            // 更新主窗口
-            const row = document.querySelector(`#memo-${memoId} tbody tr:nth-child(${rowIdx + 1})`);
+            
+            // 更新主窗口显示
+            const row = document.querySelector(`#memo-${floatingMemoId} tbody tr:nth-child(${rowIdx + 1})`);
             if (row) {
                 row.querySelectorAll('td:not(.checkbox-col):not(.action-col)').forEach(cell => {
                     if (isChecked) cell.classList.add('row-completed');
@@ -910,13 +1156,34 @@
                 const cb = row.querySelector('.task-checkbox');
                 if (cb) cb.checked = isChecked;
             }
+            
+            // 更新小窗口行样式
+            const tr = checkbox.closest('tr');
+            if (isChecked) {
+                tr.classList.add('completed-row');
+                // 可选：延迟移除已完成行
+                setTimeout(() => {
+                    if (memos[floatingMemoId] && memos[floatingMemoId].rows[rowIdx] && memos[floatingMemoId].rows[rowIdx].completed) {
+                        tr.remove();
+                        const remainingRows = document.querySelectorAll('#floatingContent .floating-table tbody tr');
+                        if (remainingRows.length === 0) {
+                            document.getElementById('floatingContent').innerHTML = '<div class="empty-tip">✅ 所有任务都已完成！</div>';
+                        }
+                    }
+                }, 300);
+            } else {
+                tr.classList.remove('completed-row');
+            }
         }
-        if (isChecked) checkbox.closest('tr').classList.add('completed-row');
     }
     
     function formatRemarkInFloating(cmd) {
         const editor = document.getElementById('floatingRemarkEditor');
-        if (editor) { editor.focus(); document.execCommand(cmd, false, null); saveRemarkInFloating(); }
+        if (editor) { 
+            editor.focus(); 
+            document.execCommand(cmd, false, null); 
+            saveRemarkInFloating(); 
+        }
     }
     
     function changeRemarkColorInFloating() {
@@ -934,8 +1201,8 @@
     
     function saveRemarkInFloating() {
         const editor = document.getElementById('floatingRemarkEditor');
-        if (editor && window.floatingMemoId) {
-            memos[window.floatingMemoId].remark = editor.innerHTML;
+        if (editor && floatingMemoId) {
+            memos[floatingMemoId].remark = editor.innerHTML;
             saveToLocal();
         }
     }
@@ -1108,6 +1375,7 @@
     window.openThemeDrawer = openThemeDrawer;
     window.closeThemeDrawer = closeThemeDrawer;
     window.closeFloatingWindow = closeFloatingWindow;
+    window.minimizeFloatingWindow = minimizeFloatingWindow;
     window.toggleTaskCompleteInFloating = toggleTaskCompleteInFloating;
     window.formatRemarkInFloating = formatRemarkInFloating;
     window.changeRemarkColorInFloating = changeRemarkColorInFloating;
@@ -1115,6 +1383,7 @@
     
     // 初始化
     document.getElementById('smallWindowBtn').addEventListener('click', showColumnSelector);
+    initFloatingDrag();
     if (!checkAutoLogin()) showAuthPage();
     initThemeDrawer();
 </script>
