@@ -2,14 +2,13 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>智能备忘录系统</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: system-ui, 'Microsoft YaHei', '微软雅黑', 'PingFang SC', sans-serif;
+            font-family: system-ui, 'Microsoft YaHei', sans-serif;
         }
         
         body {
@@ -86,9 +85,10 @@
             font-weight: 500;
             cursor: pointer;
             margin-top: 8px;
+            transition: all 0.2s;
         }
         
-        .auth-btn:hover { background: var(--accent-hover); }
+        .auth-btn:hover { background: var(--accent-hover); transform: translateY(-1px); }
         
         .auth-link {
             text-align: center;
@@ -120,40 +120,91 @@
             padding: 4px 12px;
             border-radius: 20px;
             color: var(--text-light);
+            transition: all 0.2s;
         }
         
-        /* 回收站按钮 */
-        .trash-btn {
-            position: fixed;
-            left: 20px;
-            bottom: 20px;
+        .logout-btn:hover { background: rgba(0,0,0,0.05); }
+        
+        /* 顶部栏布局：回收站放在最左边 */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .left-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .zoom-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-secondary);
+            padding: 6px 12px;
+            border-radius: 40px;
+        }
+        
+        .zoom-btn {
             background: var(--accent-primary);
             color: white;
             border: none;
-            padding: 12px 16px;
-            border-radius: 50px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
             cursor: pointer;
             font-size: 16px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .zoom-btn:hover { background: var(--accent-hover); transform: scale(1.05); }
+        
+        .zoom-value {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-dark);
+            min-width: 50px;
+            text-align: center;
+        }
+        
+        .reset-btn {
+            background: var(--text-light);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+        }
+        
+        /* 回收站按钮 - 放在最左边 */
+        .trash-btn {
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 14px;
             font-weight: 500;
             display: flex;
             align-items: center;
             gap: 8px;
-            z-index: 999;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
             transition: all 0.2s;
         }
         
-        .trash-btn:hover {
-            background: var(--accent-hover);
-            transform: scale(1.05);
-        }
+        .trash-btn:hover { background: var(--accent-hover); transform: scale(1.02); }
         
-        .tabs-wrapper {
+        .right-controls {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            margin-bottom: 0;
+            gap: 12px;
         }
         
         .history-btn {
@@ -165,7 +216,10 @@
             cursor: pointer;
             font-size: 14px;
             font-weight: 500;
+            transition: all 0.2s;
         }
+        
+        .history-btn:hover { background: var(--accent-hover); transform: translateY(-1px); }
         
         .tabs-container {
             background: var(--card-white);
@@ -174,7 +228,6 @@
             display: flex;
             gap: 8px;
             flex-wrap: wrap;
-            flex: 1;
         }
         
         .tab {
@@ -185,21 +238,23 @@
             cursor: pointer;
             font-weight: 500;
             color: var(--text-dark);
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            transition: all 0.2s;
         }
         
         .tab.active { background: var(--accent-primary); color: white; }
+        .tab:hover:not(.active) { background: var(--border-color); }
         
         .delete-tab {
             background: none;
             border: none;
             cursor: pointer;
-            font-size: 18px;
+            font-size: 16px;
             padding: 0 5px;
             border-radius: 50%;
+            transition: all 0.2s;
         }
+        
+        .delete-tab:hover { background: rgba(0,0,0,0.1); transform: scale(1.1); }
         
         .add-tab-btn {
             background: #28a745;
@@ -208,7 +263,10 @@
             padding: 8px 16px;
             border-radius: 8px;
             cursor: pointer;
+            transition: all 0.2s;
         }
+        
+        .add-tab-btn:hover { background: #218838; transform: translateY(-1px); }
         
         .main-container {
             background: var(--card-white);
@@ -222,16 +280,31 @@
         
         .table-wrapper {
             overflow-x: auto;
-            margin: 16px 0;
+            margin-bottom: 20px;
             border-radius: 12px;
             border: 1px solid var(--border-color);
         }
         
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+        
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 10px 12px;
+            text-align: left;
+            vertical-align: top;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        
         th {
-            position: relative;
             background-color: var(--bg-secondary);
             font-weight: 600;
             color: var(--text-dark);
+            position: relative;
         }
         
         .resize-handle-col {
@@ -245,14 +318,7 @@
             z-index: 10;
         }
         
-        .resize-handle-col:hover {
-            background: var(--accent-primary);
-            opacity: 0.5;
-        }
-        
-        td {
-            position: relative;
-        }
+        .resize-handle-col:hover { background: var(--accent-primary); opacity: 0.5; }
         
         .resize-handle-row {
             position: absolute;
@@ -265,63 +331,41 @@
             z-index: 10;
         }
         
-        .resize-handle-row:hover {
-            background: var(--accent-primary);
-            opacity: 0.5;
-        }
+        .resize-handle-row:hover { background: var(--accent-primary); opacity: 0.5; }
         
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 600px;
-            table-layout: auto;
-        }
-        
-        th, td {
-            border: 1px solid var(--border-color);
-            padding: 10px 12px;
-            text-align: left;
-            vertical-align: top;
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
-        
-        .select-all-col {
-            width: 40px;
-            text-align: center;
-        }
-        
-        .select-all-checkbox {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-        
+        .select-all-col { width: 40px; text-align: center; }
+        .select-all-checkbox { width: 18px; height: 18px; cursor: pointer; }
         .row-completed { text-decoration: line-through; opacity: 0.6; }
-        
-        .checkbox-col {
-            text-align: center;
-            width: 50px;
-            vertical-align: middle;
-        }
-        
-        .action-col {
-            text-align: center;
-            width: 80px;
-            vertical-align: middle;
-        }
+        .checkbox-col { text-align: center; width: 50px; vertical-align: middle; }
+        .action-col { text-align: center; width: 110px; vertical-align: middle; }
         
         .btn-icon {
-            background: none;
+            background: var(--bg-secondary);
             border: none;
             cursor: pointer;
-            font-size: 16px;
-            padding: 4px 6px;
+            font-size: 14px;
+            padding: 5px 8px;
             border-radius: 6px;
             margin: 0 2px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
         
-        .btn-icon:hover { background: var(--bg-secondary); }
+        .btn-icon:hover { background: var(--accent-primary); color: white; transform: scale(1.05); }
+        
+        .color-btn {
+            background: var(--bg-secondary);
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        
+        .color-btn:hover { background: var(--accent-primary); color: white; transform: scale(1.02); }
         
         .toolbar {
             display: flex;
@@ -341,12 +385,15 @@
             border-radius: 8px;
             cursor: pointer;
             font-weight: 500;
+            transition: all 0.2s;
         }
         
-        button:hover { background: var(--accent-hover); }
+        button:hover { background: var(--accent-hover); transform: translateY(-1px); }
         button.danger { background: #dc3545; }
         button.success { background: #28a745; }
+        button.secondary { background: var(--text-light); }
         
+        /* 备注栏 - 放在表格下方 */
         .remark-section {
             margin-top: 20px;
             padding: 16px;
@@ -376,8 +423,6 @@
             resize: vertical;
             overflow-y: auto;
             background-color: var(--card-white);
-            white-space: pre-wrap;
-            word-break: break-word;
         }
         
         .footer-bar { margin-top: 10px; display: flex; justify-content: space-between; }
@@ -406,7 +451,10 @@
             align-items: center;
             justify-content: center;
             font-size: 18px;
+            transition: all 0.2s;
         }
+        
+        .theme-circle-btn:hover { transform: scale(1.05); }
         
         .theme-drawer-panel {
             position: fixed;
@@ -454,8 +502,10 @@
             border-radius: 12px;
             cursor: pointer;
             background: var(--bg-secondary);
+            transition: all 0.2s;
         }
         
+        .theme-drawer-item:hover { background: var(--border-color); transform: translateX(-4px); }
         .theme-drawer-item.active { background: var(--accent-primary); color: white; }
         
         .theme-drawer-color {
@@ -465,6 +515,7 @@
             border: 2px solid white;
         }
         
+        /* 颜色选择器弹窗 */
         .color-picker-modal {
             display: none;
             position: fixed;
@@ -486,6 +537,8 @@
             width: 90%;
         }
         
+        .color-picker-title { font-size: 18px; font-weight: 600; margin-bottom: 15px; }
+        
         .color-grid {
             display: grid;
             grid-template-columns: repeat(8, 1fr);
@@ -499,9 +552,11 @@
             border-radius: 8px;
             cursor: pointer;
             border: 2px solid transparent;
+            transition: all 0.2s;
         }
         
         .color-option:hover { transform: scale(1.1); border-color: #333; }
+        .color-option.selected { border-color: #0066ff; box-shadow: 0 0 0 2px #0066ff; }
         
         .custom-color { margin-top: 15px; display: flex; gap: 10px; align-items: center; }
         .custom-color input { flex: 1; padding: 8px; border: 1px solid #dee2e6; border-radius: 6px; }
@@ -513,18 +568,6 @@
         .import-area input { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
         
         .small-btn { padding: 4px 12px; font-size: 12px; background: var(--accent-primary); }
-        
-        .small-window-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--accent-primary);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 50px;
-            cursor: pointer;
-            z-index: 998;
-        }
         
         .column-selector-modal {
             display: none;
@@ -562,7 +605,7 @@
         .selector-buttons { display: flex; gap: 10px; justify-content: flex-end; }
         
         /* 回收站弹窗 */
-        .trash-modal {
+        .trash-modal, .history-modal {
             display: none;
             position: fixed;
             top: 0;
@@ -570,12 +613,12 @@
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.5);
-            z-index: 20002;
+            z-index: 20001;
             justify-content: center;
             align-items: center;
         }
         
-        .trash-modal-content {
+        .trash-modal-content, .history-modal-content {
             background: var(--card-white);
             border-radius: 20px;
             width: 80%;
@@ -586,7 +629,7 @@
             flex-direction: column;
         }
         
-        .trash-modal-header {
+        .trash-modal-header, .history-modal-header {
             padding: 20px;
             background: var(--accent-primary);
             color: white;
@@ -595,7 +638,7 @@
             align-items: center;
         }
         
-        .trash-modal-body {
+        .trash-modal-body, .history-modal-body {
             flex: 1;
             overflow-y: auto;
             padding: 20px;
@@ -615,48 +658,10 @@
         .trash-item-title { font-weight: 600; font-size: 16px; margin-bottom: 4px; }
         .trash-item-date { font-size: 12px; color: var(--text-light); }
         .trash-item-actions { display: flex; gap: 10px; }
-        .restore-btn { background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
-        .permanent-delete-btn { background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
-        
-        /* 历史弹窗 */
-        .history-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 20001;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .history-modal-content {
-            background: var(--card-white);
-            border-radius: 20px;
-            width: 80%;
-            max-width: 800px;
-            max-height: 80vh;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .history-modal-header {
-            padding: 20px;
-            background: var(--accent-primary);
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .history-modal-body {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-        }
+        .restore-btn { background: #28a745; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+        .restore-btn:hover { background: #218838; transform: scale(1.02); }
+        .permanent-delete-btn { background: #dc3545; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+        .permanent-delete-btn:hover { background: #c82333; transform: scale(1.02); }
         
         .history-item {
             background: var(--bg-secondary);
@@ -665,7 +670,10 @@
             margin-bottom: 12px;
             cursor: pointer;
             border-left: 4px solid var(--accent-primary);
+            transition: all 0.2s;
         }
+        
+        .history-item:hover { transform: translateX(5px); background: var(--border-color); }
         
         .history-item-title { font-weight: 600; font-size: 16px; margin-bottom: 8px; }
         .history-item-date { font-size: 12px; color: var(--text-light); }
@@ -682,127 +690,6 @@
         }
         
         .empty-tip { text-align: center; padding: 40px; color: var(--text-light); }
-        
-        /* 独立小窗口样式 */
-        .floating-window {
-            position: fixed;
-            width: auto;
-            min-width: 400px;
-            max-width: 90vw;
-            background: var(--card-white);
-            border-radius: 16px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-        }
-        
-        .floating-header {
-            background: var(--accent-primary);
-            color: white;
-            padding: 12px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: move;
-            flex-shrink: 0;
-        }
-        
-        .floating-title { font-size: 14px; font-weight: 500; }
-        
-        .floating-controls button {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-left: 8px;
-            font-size: 12px;
-        }
-        
-        .floating-content { 
-            flex: 1; 
-            overflow-y: auto; 
-            overflow-x: auto;
-            padding: 16px; 
-            max-height: 60vh;
-            background: var(--bg-primary);
-        }
-        
-        .floating-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-            background: var(--card-white);
-            border-radius: 8px;
-            margin-bottom: 15px;
-            table-layout: auto;
-        }
-        
-        .floating-table th, .floating-table td {
-            border: 1px solid var(--border-color);
-            padding: 8px 12px;
-            text-align: left;
-            vertical-align: top;
-        }
-        
-        .floating-table th {
-            background: var(--bg-secondary);
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-        
-        .floating-checkbox {
-            text-align: center;
-            width: 50px;
-        }
-        
-        .floating-checkbox input {
-            width: 16px;
-            height: 16px;
-            cursor: pointer;
-        }
-        
-        .floating-remark-section {
-            margin-top: 12px;
-            padding: 12px;
-            background: var(--bg-secondary);
-            border-radius: 10px;
-        }
-        
-        .floating-remark-title {
-            font-weight: 600;
-            font-size: 12px;
-            color: var(--text-dark);
-            margin-bottom: 5px;
-        }
-        
-        .floating-remark-editor {
-            width: 100%;
-            min-height: 70px;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            font-size: 12px;
-            resize: vertical;
-            background: var(--card-white);
-        }
-        
-        .resize-handle {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            width: 15px;
-            height: 15px;
-            cursor: nw-resize;
-            background: linear-gradient(135deg, transparent 50%, var(--accent-primary) 50%);
-            border-radius: 0 0 8px 0;
-        }
-        
-        .resizing-col { user-select: none; }
-        .resizing-row { user-select: none; }
     </style>
 </head>
 <body class="theme-1">
@@ -812,19 +699,30 @@
         <button class="logout-btn" onclick="logout()">退出登录</button>
     </div>
     
-    <div class="tabs-wrapper">
-        <div class="tabs-container" id="tabsContainer" style="display: none;"></div>
-        <button class="history-btn" id="rightHistoryBtn" style="display: none;">历史</button>
+    <!-- 顶部栏：回收站在最左边 -->
+    <div class="top-bar" id="topBar" style="display: none;">
+        <div class="left-controls">
+            <button class="trash-btn" id="trashBtn">🗑️ 回收站</button>
+            <div class="zoom-control">
+                <button class="zoom-btn" id="zoomOutBtn">−</button>
+                <span class="zoom-value" id="zoomValue">100%</span>
+                <button class="zoom-btn" id="zoomInBtn">+</button>
+                <button class="reset-btn" id="zoomResetBtn">重置</button>
+            </div>
+        </div>
+        <div class="right-controls">
+            <button class="history-btn" id="rightHistoryBtn">📜 历史</button>
+        </div>
     </div>
+    
+    <div class="tabs-container" id="tabsContainer" style="display: none;"></div>
     <div class="main-container" id="mainContainer" style="display: none;"></div>
 </div>
-
-<button class="trash-btn" id="trashBtn" style="display: none;">回收站</button>
 
 <div id="themeDrawerPanel" class="theme-drawer-panel">
     <div class="theme-drawer-header">
         <span>诗意背景</span>
-        <button class="theme-drawer-close" onclick="closeThemeDrawer()">x</button>
+        <button class="theme-drawer-close" onclick="closeThemeDrawer()">×</button>
     </div>
     <div class="theme-drawer-list" id="themeDrawerList"></div>
 </div>
@@ -850,7 +748,7 @@
         <div class="column-list" id="columnList"></div>
         <div class="selector-buttons">
             <button onclick="closeColumnSelector()" class="secondary">取消</button>
-            <button onclick="confirmColumnSelect()">确定并打开小窗口</button>
+            <button onclick="confirmColumnSelect()">确定</button>
         </div>
     </div>
 </div>
@@ -858,8 +756,8 @@
 <div id="trashModal" class="trash-modal">
     <div class="trash-modal-content">
         <div class="trash-modal-header">
-            <span>回收站</span>
-            <button onclick="closeTrashModal()" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer;">x</button>
+            <span>🗑️ 回收站</span>
+            <button onclick="closeTrashModal()" style="background:none;border:none;color:white;font-size:24px;cursor:pointer;">×</button>
         </div>
         <div class="trash-modal-body" id="trashModalBody"></div>
     </div>
@@ -869,17 +767,15 @@
     <div class="history-modal-content">
         <div class="history-modal-header">
             <span id="historyModalTitle">历史记录</span>
-            <button onclick="closeHistoryModal()" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer;">x</button>
+            <button onclick="closeHistoryModal()" style="background:none;border:none;color:white;font-size:24px;cursor:pointer;">×</button>
         </div>
         <div class="history-modal-body" id="historyModalBody"></div>
     </div>
 </div>
 
-<div class="small-window-btn" id="smallWindowBtn" style="display: none;">小窗口模式</div>
-
 <script>
-    // 主题配置
-    const themes = [
+(function() {
+    var themes = [
         { id: 1, name: '雾里看花', color1: '#F3F0E9', color2: '#9CAF88' },
         { id: 2, name: '烟雨江南', color1: '#E8EDF2', color2: '#7D8C7F' },
         { id: 3, name: '青山远黛', color1: '#E8EFE5', color2: '#8BA384' },
@@ -892,53 +788,65 @@
         { id: 10, name: '清泉石上', color1: '#E2E6E0', color2: '#90A89A' }
     ];
     
-    let currentThemeId = 1;
-    let currentUser = null;
-    let memos = {};
-    let currentMemoId = null;
-    let nextId = 1;
-    let pendingColorCallback = null;
-    let selectedColumns = [];
-    let historyRecords = [];
-    let trashBin = [];
-    let columnWidths = {};
-    let rowHeights = {};
+    var currentThemeId = 1;
+    var currentUser = null;
+    var memos = {};
+    var currentMemoId = null;
+    var nextId = 1;
+    var pendingColorCallback = null;
+    var historyRecords = [];
+    var trashBin = [];
+    var columnWidths = {};
+    var rowHeights = {};
     
-    const presetColors = ['#000000', '#333333', '#666666', '#999999', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7B731', '#FF9F4A', '#A8E6CF', '#FFD3B6', '#FF8B94', '#0066ff', '#28a745', '#dc3545', '#fd7e14'];
+    // 缩放相关变量
+    var currentZoom = 100;
+    var zoomStep = 10;
+    var minZoom = 50;
+    var maxZoom = 150;
     
-    function escapeHtml(str) {
-        if (!str) return '';
-        return String(str).replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
+    var presetColors = ['#000000', '#333333', '#666666', '#999999', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7B731', '#FF9F4A', '#A8E6CF', '#FFD3B6', '#FF8B94', '#0066ff', '#28a745', '#dc3545', '#fd7e14'];
+    
+    function escapeHtml(str) { if (!str) return ''; return String(str).replace(/[&<>]/g, function(m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
+    function stripHtml(html) { if (!html) return ''; var tmp = document.createElement('div'); tmp.innerHTML = html; return tmp.textContent || tmp.innerText || ''; }
+    function getTodayString() { var today = new Date(); return today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0'); }
+    
+    // 缩放功能
+    function applyZoom() {
+        var appContainer = document.getElementById('app');
+        if (appContainer) {
+            appContainer.style.transform = 'scale(' + (currentZoom / 100) + ')';
+            appContainer.style.width = (100 / (currentZoom / 100)) + '%';
+            appContainer.style.transformOrigin = 'top left';
+        }
+        document.getElementById('zoomValue').innerText = currentZoom + '%';
+        localStorage.setItem('app_zoom_' + (currentUser ? currentUser.id : 'default'), currentZoom);
     }
     
-    function stripHtml(html) {
-        if (!html) return '';
-        const tmp = document.createElement('div');
-        tmp.innerHTML = html;
-        return tmp.textContent || tmp.innerText || '';
+    function zoomIn() { if (currentZoom + zoomStep <= maxZoom) { currentZoom += zoomStep; applyZoom(); } }
+    function zoomOut() { if (currentZoom - zoomStep >= minZoom) { currentZoom -= zoomStep; applyZoom(); } }
+    function zoomReset() { currentZoom = 100; applyZoom(); }
+    
+    function loadZoomSetting() {
+        var savedZoom = localStorage.getItem('app_zoom_' + (currentUser ? currentUser.id : 'default'));
+        if (savedZoom) { currentZoom = parseInt(savedZoom); if (currentZoom < minZoom) currentZoom = minZoom; if (currentZoom > maxZoom) currentZoom = maxZoom; applyZoom(); }
     }
     
-    function getTodayString() {
-        const today = new Date();
-        return `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+    function initZoomControls() {
+        document.getElementById('zoomInBtn').addEventListener('click', zoomIn);
+        document.getElementById('zoomOutBtn').addEventListener('click', zoomOut);
+        document.getElementById('zoomResetBtn').addEventListener('click', zoomReset);
     }
     
     function initDefaultMemo() {
         return {
-            id: 'memo_1',
-            name: '我的备忘录',
+            id: 'memo_1', name: '我的备忘录',
             headers: ['任务名称', '优先级', '截止日期'],
             rows: [
                 { cells: ['撰写周报', '高', getTodayString()], completed: false, bgColor: '#ffffff' },
                 { cells: ['整理文档', '中', getTodayString()], completed: false, bgColor: '#ffffff' },
                 { cells: ['团队会议', '高', getTodayString()], completed: false, bgColor: '#ffffff' }
-            ],
-            remark: ''
+            ], remark: ''
         };
     }
     
@@ -946,25 +854,27 @@
         currentThemeId = themeId;
         document.body.className = 'theme-' + themeId;
         if (currentUser) localStorage.setItem('user_' + currentUser.id + '_theme', themeId);
-        document.querySelectorAll('.theme-drawer-item').forEach(function(item) {
-            if (parseInt(item.dataset.id) === themeId) item.classList.add('active');
-            else item.classList.remove('active');
-        });
+        var items = document.querySelectorAll('.theme-drawer-item');
+        for (var i = 0; i < items.length; i++) {
+            if (parseInt(items[i].dataset.id) === themeId) items[i].classList.add('active');
+            else items[i].classList.remove('active');
+        }
         closeThemeDrawer();
     }
     
     function initThemeDrawer() {
         var container = document.getElementById('themeDrawerList');
         container.innerHTML = '';
-        themes.forEach(function(theme) {
+        for (var i = 0; i < themes.length; i++) {
+            var theme = themes[i];
             var item = document.createElement('div');
             item.className = 'theme-drawer-item';
             item.dataset.id = theme.id;
             if (theme.id === currentThemeId) item.classList.add('active');
-            item.onclick = function() { changeTheme(theme.id); };
+            item.onclick = (function(id) { return function() { changeTheme(id); }; })(theme.id);
             item.innerHTML = '<div class="theme-drawer-color" style="background: linear-gradient(135deg, ' + theme.color1 + ', ' + theme.color2 + ');"></div><div class="theme-drawer-name">' + theme.name + '</div>';
             container.appendChild(item);
-        });
+        }
     }
     
     function openThemeDrawer() { document.getElementById('themeDrawerPanel').classList.add('open'); }
@@ -976,23 +886,11 @@
         for (var i = 0; i < memo.rows.length; i++) memo.rows[i].completed = isChecked;
         saveToLocal();
         if (isChecked) {
-            var historyItem = {
-                id: Date.now(),
-                memoId: memoId,
-                memoName: memo.name,
-                memoData: JSON.parse(JSON.stringify(memo)),
-                completedDate: new Date().toLocaleString()
-            };
+            var historyItem = { id: Date.now(), memoId: memoId, memoName: memo.name, memoData: JSON.parse(JSON.stringify(memo)), completedDate: new Date().toLocaleString() };
             historyRecords.push(historyItem);
             saveHistory();
             var newId = 'memo_' + nextId++;
-            memos[newId] = {
-                id: newId,
-                name: '备忘录 ' + (nextId-1),
-                headers: memo.headers.slice(),
-                rows: [{ cells: new Array(memo.headers.length).fill('新任务'), completed: false, bgColor: '#ffffff' }],
-                remark: ''
-            };
+            memos[newId] = { id: newId, name: '备忘录 ' + (nextId-1), headers: memo.headers.slice(), rows: [{ cells: new Array(memo.headers.length).fill('新任务'), completed: false, bgColor: '#ffffff' }], remark: '' };
             delete memos[memoId];
             currentMemoId = newId;
             render();
@@ -1003,15 +901,8 @@
         }
     }
     
-    function loadHistory() {
-        var saved = localStorage.getItem('user_' + (currentUser ? currentUser.id : '') + '_history');
-        if (saved) historyRecords = JSON.parse(saved);
-        else historyRecords = [];
-    }
-    
-    function saveHistory() {
-        if (currentUser) localStorage.setItem('user_' + currentUser.id + '_history', JSON.stringify(historyRecords));
-    }
+    function loadHistory() { var saved = localStorage.getItem('user_' + (currentUser ? currentUser.id : '') + '_history'); if (saved) historyRecords = JSON.parse(saved); else historyRecords = []; }
+    function saveHistory() { if (currentUser) localStorage.setItem('user_' + currentUser.id + '_history', JSON.stringify(historyRecords)); }
     
     function showHistory() {
         if (historyRecords.length === 0) { alert('暂无历史记录'); return; }
@@ -1022,44 +913,43 @@
         for (var i = 0; i < historyRecords.length; i++) {
             var record = historyRecords[i];
             var preview = (record.memoData.rows[0] ? record.memoData.rows[0].cells[0] : '') || '';
-            html += '<div class="history-item" onclick="viewHistoryDetail(\'' + record.id + '\')"><div class="history-item-title">\uD83D\uDCCB ' + escapeHtml(record.memoName) + '</div><div class="history-item-date">完成时间：' + record.completedDate + '</div><div class="history-item-preview">预览：' + escapeHtml(preview) + '...</div></div>';
+            html += '<div class="history-item" onclick="viewHistoryDetail(\'' + record.id + '\')"><div class="history-item-title">📋 ' + escapeHtml(record.memoName) + '</div><div class="history-item-date">完成时间：' + record.completedDate + '</div><div class="history-item-preview">预览：' + escapeHtml(preview) + '...</div></div>';
         }
         body.innerHTML = html;
         modal.style.display = 'flex';
     }
     
     function viewHistoryDetail(recordId) {
-        var record = historyRecords.find(function(r) { return r.id == recordId; });
+        var record = null;
+        for (var i = 0; i < historyRecords.length; i++) { if (historyRecords[i].id == recordId) { record = historyRecords[i]; break; } }
         if (!record) return;
-        document.getElementById('historyModalTitle').innerText = '\uD83D\uDCCB ' + escapeHtml(record.memoName) + ' (历史记录)';
+        document.getElementById('historyModalTitle').innerText = '📋 ' + escapeHtml(record.memoName) + ' (历史记录)';
         var tableHtml = '<table class="history-detail-table"><thead><tr>';
-        for (var i = 0; i < record.memoData.headers.length; i++) {
-            tableHtml += '<th>' + escapeHtml(record.memoData.headers[i]) + '</th>';
-        }
-        tableHtml += '<th>状态</th></tr></thead><tbody>';
+        for (var h = 0; h < record.memoData.headers.length; h++) tableHtml += '<th>' + escapeHtml(record.memoData.headers[h]) + '</th>';
+        tableHtml += '<th>状态</th></thead><tbody>';
         for (var r = 0; r < record.memoData.rows.length; r++) {
             var row = record.memoData.rows[r];
             tableHtml += '<tr>';
-            for (var c = 0; c < row.cells.length; c++) {
-                tableHtml += '<td>' + escapeHtml(row.cells[c]) + '</td>';
-            }
-            tableHtml += '<td>' + (row.completed ? '已完成' : '未完成') + '</td></tr>';
+            for (var c = 0; c < row.cells.length; c++) tableHtml += '<td>' + escapeHtml(row.cells[c]) + '</td>';
+            tableHtml += '<td>' + (row.completed ? '✓ 已完成' : '○ 未完成') + '</td>';
+            tableHtml += '</tr>';
         }
-        tableHtml += '</tbody></table>';
-        var remarkHtml = '<div style="margin-top:15px;"><strong>\uD83D\uDCDD 备注：</strong><div style="margin-top:5px;padding:10px;background:var(--bg-secondary);border-radius:8px;">' + (record.memoData.remark || '无') + '</div></div>';
+        tableHtml += '</tbody><td>';
+        var remarkHtml = '<div style="margin-top:15px;"><strong>📝 备注：</strong><div style="margin-top:5px;padding:10px;background:var(--bg-secondary);border-radius:8px;">' + (record.memoData.remark || '无') + '</div></div>';
         var restoreBtn = '<button onclick="restoreFromHistory(\'' + recordId + '\')" style="margin-top:15px;background:#28a745;">恢复到当前备忘录</button>';
         document.getElementById('historyModalBody').innerHTML = tableHtml + remarkHtml + restoreBtn;
     }
     
     function restoreFromHistory(recordId) {
-        var record = historyRecords.find(function(r) { return r.id == recordId; });
+        var record = null;
+        for (var i = 0; i < historyRecords.length; i++) { if (historyRecords[i].id == recordId) { record = historyRecords[i]; break; } }
         if (!record) return;
         if (confirm('确定要将「' + record.memoName + '」恢复到当前备忘录吗？')) {
             var newId = 'memo_' + nextId++;
             memos[newId] = JSON.parse(JSON.stringify(record.memoData));
             memos[newId].id = newId;
             memos[newId].name = record.memoName;
-            memos[newId].rows.forEach(function(row) { row.completed = false; });
+            for (var r = 0; r < memos[newId].rows.length; r++) memos[newId].rows[r].completed = false;
             currentMemoId = newId;
             saveToLocal();
             render();
@@ -1070,19 +960,13 @@
     
     function closeHistoryModal() { document.getElementById('historyModal').style.display = 'none'; }
     
-    function loadTrash() {
-        var saved = localStorage.getItem('user_' + (currentUser ? currentUser.id : '') + '_trash');
-        if (saved) trashBin = JSON.parse(saved);
-        else trashBin = [];
-    }
-    
-    function saveTrash() {
-        if (currentUser) localStorage.setItem('user_' + currentUser.id + '_trash', JSON.stringify(trashBin));
-    }
+    function loadTrash() { var saved = localStorage.getItem('user_' + (currentUser ? currentUser.id : '') + '_trash'); if (saved) trashBin = JSON.parse(saved); else trashBin = []; }
+    function saveTrash() { if (currentUser) localStorage.setItem('user_' + currentUser.id + '_trash', JSON.stringify(trashBin)); }
     
     function deleteMemoToTrash(memoId) {
         var memo = memos[memoId];
         if (!memo) return;
+        if (!confirm('确定删除备忘录「' + memo.name + '」吗？删除后可到回收站恢复。')) return;
         var trashItem = { id: Date.now(), memoId: memoId, memoName: memo.name, memoData: JSON.parse(JSON.stringify(memo)), deletedDate: new Date().toLocaleString() };
         trashBin.push(trashItem);
         saveTrash();
@@ -1108,7 +992,7 @@
         var html = '';
         for (var i = 0; i < trashBin.length; i++) {
             var item = trashBin[i];
-            html += '<div class="trash-item"><div class="trash-item-info"><div class="trash-item-title">\uD83D\uDCCB ' + escapeHtml(item.memoName) + '</div><div class="trash-item-date">删除时间：' + item.deletedDate + '</div></div><div class="trash-item-actions"><button class="restore-btn" onclick="restoreFromTrash(\'' + item.id + '\')">恢复</button><button class="permanent-delete-btn" onclick="permanentDelete(\'' + item.id + '\')">永久删除</button></div></div>';
+            html += '<div class="trash-item"><div class="trash-item-info"><div class="trash-item-title">📋 ' + escapeHtml(item.memoName) + '</div><div class="trash-item-date">删除时间：' + item.deletedDate + '</div></div><div class="trash-item-actions"><button class="restore-btn" onclick="restoreFromTrash(\'' + item.id + '\')">恢复</button><button class="permanent-delete-btn" onclick="permanentDelete(\'' + item.id + '\')">永久删除</button></div></div>';
         }
         body.innerHTML = html;
         modal.style.display = 'flex';
@@ -1117,14 +1001,18 @@
     function closeTrashModal() { document.getElementById('trashModal').style.display = 'none'; }
     
     function restoreFromTrash(itemId) {
-        var item = trashBin.find(function(i) { return i.id == itemId; });
+        var item = null;
+        for (var i = 0; i < trashBin.length; i++) { if (trashBin[i].id == itemId) { item = trashBin[i]; break; } }
         if (!item) return;
+        if (!confirm('确定恢复备忘录「' + item.memoName + '」吗？')) return;
         var newId = 'memo_' + nextId++;
         memos[newId] = JSON.parse(JSON.stringify(item.memoData));
         memos[newId].id = newId;
         memos[newId].name = item.memoName;
         currentMemoId = newId;
-        trashBin = trashBin.filter(function(i) { return i.id != itemId; });
+        var newTrash = [];
+        for (var j = 0; j < trashBin.length; j++) { if (trashBin[j].id != itemId) newTrash.push(trashBin[j]); }
+        trashBin = newTrash;
         saveTrash();
         saveToLocal();
         render();
@@ -1133,80 +1021,71 @@
     }
     
     function permanentDelete(itemId) {
-        if (confirm('确定永久删除这个备忘录吗？此操作不可恢复！')) {
-            trashBin = trashBin.filter(function(i) { return i.id != itemId; });
-            saveTrash();
-            showTrash();
-        }
+        if (!confirm('确定永久删除这个备忘录吗？此操作不可恢复！')) return;
+        var newTrash = [];
+        for (var i = 0; i < trashBin.length; i++) { if (trashBin[i].id != itemId) newTrash.push(trashBin[i]); }
+        trashBin = newTrash;
+        saveTrash();
+        showTrash();
     }
     
     function initResizeHandlers(table, memoId) {
         var cols = table.querySelectorAll('th');
-        cols.forEach(function(col, colIdx) {
-            var handle = document.createElement('div');
-            handle.className = 'resize-handle-col';
-            col.style.position = 'relative';
-            col.appendChild(handle);
-            var startX, startWidth;
-            handle.addEventListener('mousedown', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                startX = e.clientX;
-                startWidth = col.offsetWidth;
-                document.addEventListener('mousemove', onColMove);
-                document.addEventListener('mouseup', onColUp);
-                document.body.classList.add('resizing-col');
-            });
-            function onColMove(e) {
-                var newWidth = startWidth + (e.clientX - startX);
-                if (newWidth > 40) col.style.width = newWidth + 'px';
-            }
-            function onColUp() {
-                document.removeEventListener('mousemove', onColMove);
-                document.removeEventListener('mouseup', onColUp);
-                document.body.classList.remove('resizing-col');
-                if (!columnWidths[memoId]) columnWidths[memoId] = {};
-                columnWidths[memoId][colIdx] = col.offsetWidth;
-                saveToLocal();
-            }
-        });
+        for (var i = 0; i < cols.length; i++) {
+            (function(col, colIdx) {
+                var handle = document.createElement('div');
+                handle.className = 'resize-handle-col';
+                col.style.position = 'relative';
+                col.appendChild(handle);
+                var startX, startWidth;
+                handle.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                    startX = e.clientX;
+                    startWidth = col.offsetWidth;
+                    document.addEventListener('mousemove', onColMove);
+                    document.addEventListener('mouseup', onColUp);
+                });
+                function onColMove(e) { var newWidth = startWidth + (e.clientX - startX); if (newWidth > 40) col.style.width = newWidth + 'px'; }
+                function onColUp() {
+                    document.removeEventListener('mousemove', onColMove);
+                    document.removeEventListener('mouseup', onColUp);
+                    if (!columnWidths[memoId]) columnWidths[memoId] = {};
+                    columnWidths[memoId][colIdx] = col.offsetWidth;
+                    saveToLocal();
+                }
+            })(cols[i], i);
+        }
         
         var rows = table.querySelectorAll('tbody tr');
-        rows.forEach(function(row, rowIdx) {
-            var handle = document.createElement('div');
-            handle.className = 'resize-handle-row';
-            row.style.position = 'relative';
-            row.appendChild(handle);
-            var startY, startHeight;
-            handle.addEventListener('mousedown', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                startY = e.clientY;
-                startHeight = row.offsetHeight;
-                document.addEventListener('mousemove', onRowMove);
-                document.addEventListener('mouseup', onRowUp);
-                document.body.classList.add('resizing-row');
-            });
-            function onRowMove(e) {
-                var newHeight = startHeight + (e.clientY - startY);
-                if (newHeight > 30) row.style.height = newHeight + 'px';
-            }
-            function onRowUp() {
-                document.removeEventListener('mousemove', onRowMove);
-                document.removeEventListener('mouseup', onRowUp);
-                document.body.classList.remove('resizing-row');
-                if (!rowHeights[memoId]) rowHeights[memoId] = {};
-                rowHeights[memoId][rowIdx] = row.offsetHeight;
-                saveToLocal();
-            }
-        });
+        for (var j = 0; j < rows.length; j++) {
+            (function(row, rowIdx) {
+                var handle = document.createElement('div');
+                handle.className = 'resize-handle-row';
+                row.style.position = 'relative';
+                row.appendChild(handle);
+                var startY, startHeight;
+                handle.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                    startY = e.clientY;
+                    startHeight = row.offsetHeight;
+                    document.addEventListener('mousemove', onRowMove);
+                    document.addEventListener('mouseup', onRowUp);
+                });
+                function onRowMove(e) { var newHeight = startHeight + (e.clientY - startY); if (newHeight > 30) row.style.height = newHeight + 'px'; }
+                function onRowUp() {
+                    document.removeEventListener('mousemove', onRowMove);
+                    document.removeEventListener('mouseup', onRowUp);
+                    if (!rowHeights[memoId]) rowHeights[memoId] = {};
+                    rowHeights[memoId][rowIdx] = row.offsetHeight;
+                    saveToLocal();
+                }
+            })(rows[j], j);
+        }
     }
     
     function setupShiftEnter(editor, memoId, rowIdx, colIdx) {
         if (!editor) return;
-        editor.removeEventListener('keydown', shiftEnterHandler);
-        editor.addEventListener('keydown', shiftEnterHandler);
-        function shiftEnterHandler(e) {
+        editor.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && e.shiftKey) {
                 e.preventDefault();
                 var selection = window.getSelection();
@@ -1223,7 +1102,7 @@
                     saveToLocal();
                 }, 10);
             }
-        }
+        });
     }
     
     function loadUsers() { return JSON.parse(localStorage.getItem('memo_users') || '{}'); }
@@ -1267,12 +1146,11 @@
         render();
         
         document.getElementById('userInfoBar').style.display = 'flex';
+        document.getElementById('topBar').style.display = 'flex';
         document.getElementById('tabsContainer').style.display = 'flex';
         document.getElementById('mainContainer').style.display = 'block';
-        document.getElementById('smallWindowBtn').style.display = 'block';
-        document.getElementById('trashBtn').style.display = 'flex';
-        document.getElementById('rightHistoryBtn').style.display = 'block';
         document.getElementById('userNameDisplay').innerText = id;
+        loadZoomSetting();
         return true;
     }
     
@@ -1280,21 +1158,13 @@
         currentUser = null;
         localStorage.removeItem('current_user');
         document.getElementById('userInfoBar').style.display = 'none';
+        document.getElementById('topBar').style.display = 'none';
         document.getElementById('tabsContainer').style.display = 'none';
         document.getElementById('mainContainer').style.display = 'none';
-        document.getElementById('smallWindowBtn').style.display = 'none';
-        document.getElementById('trashBtn').style.display = 'none';
-        document.getElementById('rightHistoryBtn').style.display = 'none';
         showAuthPage();
     }
     
-    function saveUserData() { 
-        if (currentUser) {
-            localStorage.setItem('user_' + currentUser.id + '_memos', JSON.stringify(memos));
-            localStorage.setItem('user_' + currentUser.id + '_colWidths', JSON.stringify(columnWidths));
-            localStorage.setItem('user_' + currentUser.id + '_rowHeights', JSON.stringify(rowHeights));
-        }
-    }
+    function saveUserData() { if (currentUser) { localStorage.setItem('user_' + currentUser.id + '_memos', JSON.stringify(memos)); localStorage.setItem('user_' + currentUser.id + '_colWidths', JSON.stringify(columnWidths)); localStorage.setItem('user_' + currentUser.id + '_rowHeights', JSON.stringify(rowHeights)); } }
     function saveToLocal() { saveUserData(); saveHistory(); saveTrash(); }
     
     function render() {
@@ -1305,14 +1175,13 @@
     function renderTabs() {
         var container = document.getElementById('tabsContainer');
         container.innerHTML = '';
-        for (var key in memos) {
-            var memo = memos[key];
+        var memoKeys = Object.keys(memos);
+        for (var i = 0; i < memoKeys.length; i++) {
+            var memo = memos[memoKeys[i]];
             var tab = document.createElement('button');
             tab.className = 'tab ' + (currentMemoId === memo.id ? 'active' : '');
-            tab.innerHTML = escapeHtml(memo.name) + (Object.keys(memos).length > 1 ? '<button class="delete-tab" data-id="' + memo.id + '">x</button>' : '');
-            tab.onclick = (function(memId) {
-                return function(e) { if (!e.target.classList.contains('delete-tab')) switchMemo(memId); };
-            })(memo.id);
+            tab.innerHTML = escapeHtml(memo.name) + (memoKeys.length > 1 ? '<button class="delete-tab" data-id="' + memo.id + '">×</button>' : '');
+            (function(memId) { tab.onclick = function(e) { if (!e.target.classList.contains('delete-tab')) switchMemo(memId); }; })(memo.id);
             container.appendChild(tab);
         }
         var addBtn = document.createElement('button');
@@ -1321,16 +1190,15 @@
         addBtn.onclick = addNewMemo;
         container.appendChild(addBtn);
         var delBtns = document.querySelectorAll('.delete-tab');
-        delBtns.forEach(function(btn) {
-            btn.onclick = function(e) { e.stopPropagation(); deleteMemoToTrash(btn.dataset.id); };
-        });
+        for (var j = 0; j < delBtns.length; j++) { delBtns[j].onclick = function(e) { e.stopPropagation(); deleteMemoToTrash(this.dataset.id); }; }
     }
     
     function renderMemos() {
         var container = document.getElementById('mainContainer');
         container.innerHTML = '';
-        for (var key in memos) {
-            var memo = memos[key];
+        var memoKeys = Object.keys(memos);
+        for (var i = 0; i < memoKeys.length; i++) {
+            var memo = memos[memoKeys[i]];
             var div = document.createElement('div');
             div.className = 'memo-content ' + (currentMemoId === memo.id ? 'active' : '');
             div.id = 'memo-' + memo.id;
@@ -1338,13 +1206,14 @@
             container.appendChild(div);
             
             var cells = div.querySelectorAll('td div[contenteditable="true"]');
-            cells.forEach(function(cell) {
+            for (var j = 0; j < cells.length; j++) {
+                var cell = cells[j];
                 var td = cell.closest('td');
                 var tr = td.closest('tr');
                 var rowIdx = Array.from(tr.parentNode.children).indexOf(tr);
                 var colIdx = Array.from(tr.children).indexOf(td);
                 setupShiftEnter(cell, memo.id, rowIdx, colIdx);
-            });
+            }
         }
         
         setTimeout(function() {
@@ -1355,27 +1224,25 @@
                 if (table) initResizeHandlers(table, id);
                 if (columnWidths[id]) {
                     var cols = table.querySelectorAll('th');
-                    for (var i = 0; i < cols.length; i++) {
-                        if (columnWidths[id][i]) cols[i].style.width = columnWidths[id][i] + 'px';
-                    }
+                    for (var k = 0; k < cols.length; k++) { if (columnWidths[id][k]) cols[k].style.width = columnWidths[id][k] + 'px'; }
                 }
                 if (rowHeights[id]) {
                     var rows = table.querySelectorAll('tbody tr');
-                    for (var j = 0; j < rows.length; j++) {
-                        if (rowHeights[id][j]) rows[j].style.height = rowHeights[id][j] + 'px';
-                    }
+                    for (var m = 0; m < rows.length; m++) { if (rowHeights[id][m]) rows[m].style.height = rowHeights[id][m] + 'px'; }
                 }
             }
         }, 50);
     }
     
     function generateMemoHTML(memo) {
+        // 表头
         var headersHtml = '<th class="select-all-col"><input type="checkbox" class="select-all-checkbox" onchange="selectAllTasks(\'' + memo.id + '\', this.checked)"></th>';
         for (var i = 0; i < memo.headers.length; i++) {
-            headersHtml += '<th><span contenteditable="true" onblur="updateHeader(\'' + memo.id + '\',' + i + ',this.innerText)">' + escapeHtml(memo.headers[i]) + '</span><button class="btn-icon" onclick="deleteColumn(\'' + memo.id + '\',' + i + ')" style="margin-left:6px;">删除</button></th>';
+            headersHtml += '<th><span contenteditable="true" onblur="updateHeader(\'' + memo.id + '\',' + i + ',this.innerText)">' + escapeHtml(memo.headers[i]) + '</span><button class="btn-icon" onclick="deleteColumnConfirm(\'' + memo.id + '\',' + i + ')" style="margin-left:6px;">🗑️ 删除</button></th>';
         }
         headersHtml += '<th class="checkbox-col">状态</th><th class="action-col">操作</th>';
         
+        // 数据行
         var rowsHtml = '';
         for (var r = 0; r < memo.rows.length; r++) {
             var row = memo.rows[r];
@@ -1384,24 +1251,54 @@
                 cellsHtml += '<td><div contenteditable="true" onblur="updateCell(\'' + memo.id + '\',' + r + ',' + c + ',this.innerText)" class="' + (row.completed ? 'row-completed' : '') + '" style="white-space:pre-wrap;">' + escapeHtml(row.cells[c] || '') + '</div></td>';
             }
             cellsHtml += '<td class="checkbox-col"><input type="checkbox" class="task-checkbox" ' + (row.completed ? 'checked' : '') + ' onchange="toggleComplete(\'' + memo.id + '\',' + r + ',this.checked)"></td>';
-            cellsHtml += '<td class="action-col"><button class="btn-icon" onclick="deleteRow(\'' + memo.id + '\',' + r + ')" title="删除行">删除</button><button class="btn-icon" onclick="showRowColorPicker(\'' + memo.id + '\',' + r + ')" title="行颜色">颜色</button></td>';
+            cellsHtml += '<td class="action-col"><button class="btn-icon" onclick="deleteRowConfirm(\'' + memo.id + '\',' + r + ')" title="删除行">🗑️ 删除</button><button class="color-btn" onclick="showRowColorPicker(\'' + memo.id + '\',' + r + ')" title="行颜色">🎨 颜色</button></td>';
             rowsHtml += '<tr>' + cellsHtml + '</tr>';
         }
         
-        return '<div class="toolbar"><input type="text" value="' + escapeHtml(memo.name) + '" onchange="updateMemoName(\'' + memo.id + '\', this.value)" style="padding:6px 12px;border:1px solid var(--border-color);border-radius:8px;"><button onclick="addRow(\'' + memo.id + '\')">添加行</button><button onclick="addColumn(\'' + memo.id + '\')">添加列</button><button onclick="exportToExcel(\'' + memo.id + '\')" class="success">导出Excel</button><div class="import-area"><button onclick="triggerImport(\'' + memo.id + '\')">导入Excel</button><input type="file" id="importFile-' + memo.id + '" accept=".xls,.xlsx,.csv" style="display:none;" onchange="handleImportFile(event, \'' + memo.id + '\')"></div><button onclick="saveTemplate(\'' + memo.id + '\')" class="secondary">保存模板</button><button onclick="loadTemplate(\'' + memo.id + '\')" class="secondary">加载模板</button></div><div class="table-wrapper"><table id="table-' + memo.id + '"><thead><tr>' + headersHtml + '</tr></thead><tbody>' + rowsHtml + '</tbody></table></div><div class="remark-section"><div class="remark-header"><label><strong>备注栏：</strong></label><div class="remark-toolbar"><button onclick="formatRemarkBold()" class="small-btn"><b>粗体</b></button><button onclick="formatRemarkItalic()" class="small-btn"><i>斜体</i></button><button onclick="formatRemarkUnderline()" class="small-btn"><u>下划线</u></button><button onclick="changeSelectedTextColor()" class="small-btn">文字颜色</button></div></div><div id="remark-editor-' + memo.id + '" class="remark-editor" contenteditable="true" onblur="saveCurrentRemark()">' + (memo.remark || '') + '</div><div class="footer-bar"><span class="save-status">自动保存</span></div></div><div class="theme-section"><div class="theme-section-title">背景主题</div><div class="theme-circle-btn" onclick="openThemeDrawer()">🎨</div></div>';
+        // 备注栏放在表格下方
+        var remarkHtml = '<div class="remark-section"><div class="remark-header"><label><strong>📝 备注栏：</strong></label><div class="remark-toolbar"><button onclick="formatRemarkBold()" class="small-btn"><b>粗体</b></button><button onclick="formatRemarkItalic()" class="small-btn"><i>斜体</i></button><button onclick="formatRemarkUnderline()" class="small-btn"><u>下划线</u></button><button onclick="changeSelectedTextColor()" class="small-btn">🎨 文字颜色</button></div></div><div id="remark-editor-' + memo.id + '" class="remark-editor" contenteditable="true" onblur="saveCurrentRemark()">' + (memo.remark || '') + '</div><div class="footer-bar"><span class="save-status">自动保存</span></div></div>';
+        
+        var themeHtml = '<div class="theme-section"><div class="theme-section-title">🎨 背景主题</div><div class="theme-circle-btn" onclick="openThemeDrawer()">🎨</div></div>';
+        
+        return '<div class="toolbar"><input type="text" value="' + escapeHtml(memo.name) + '" onchange="updateMemoName(\'' + memo.id + '\', this.value)" style="padding:6px 12px;border:1px solid var(--border-color);border-radius:8px;"><button onclick="addRow(\'' + memo.id + '\')">➕ 添加行</button><button onclick="addColumn(\'' + memo.id + '\')">📌 添加列</button><button onclick="exportToExcel(\'' + memo.id + '\')" class="success">📊 导出Excel</button><div class="import-area"><button onclick="triggerImport(\'' + memo.id + '\')">📂 导入Excel</button><input type="file" id="importFile-' + memo.id + '" accept=".xls,.xlsx,.csv" style="display:none;" onchange="handleImportFile(event, \'' + memo.id + '\')"></div><button onclick="saveTemplate(\'' + memo.id + '\')" class="secondary">💾 保存模板</button><button onclick="loadTemplate(\'' + memo.id + '\')" class="secondary">📂 加载模板</button></div>' +
+               '<div class="table-wrapper"><table id="table-' + memo.id + '"><thead><tr>' + headersHtml + '</tr></thead><tbody>' + rowsHtml + '</tbody></table></div>' +
+               remarkHtml + themeHtml;
+    }
+    
+    function deleteColumnConfirm(id, colIdx) {
+        if (!confirm('确定删除这一列吗？删除后不可恢复。')) return;
+        var memo = memos[id];
+        if (memo.headers.length <= 1) { alert('至少保留一列'); return; }
+        memo.headers.splice(colIdx, 1);
+        memo.rows.forEach(function(row) { row.cells.splice(colIdx, 1); });
+        saveToLocal();
+        renderMemos();
+    }
+    
+    function deleteRowConfirm(id, rowIdx) {
+        if (!confirm('确定删除这一行吗？删除后不可恢复。')) return;
+        memos[id].rows.splice(rowIdx, 1);
+        saveToLocal();
+        renderMemos();
     }
     
     function switchMemo(id) { currentMemoId = id; render(); }
     function addNewMemo() { var newId = 'memo_' + nextId++; memos[newId] = { id: newId, name: '备忘录 ' + (nextId-1), headers: ['任务', '状态'], rows: [{ cells: ['示例任务', '进行中'], completed: false, bgColor: '#ffffff' }], remark: '' }; currentMemoId = newId; saveToLocal(); render(); }
     function updateMemoName(id, newName) { if (memos[id]) { memos[id].name = newName; saveToLocal(); renderTabs(); } }
     function addRow(id) { var memo = memos[id]; memo.rows.push({ cells: new Array(memo.headers.length).fill('新任务'), completed: false, bgColor: '#ffffff' }); saveToLocal(); renderMemos(); }
-    function deleteRow(id, rowIdx) { if (confirm('确定删除这一行吗？')) { memos[id].rows.splice(rowIdx, 1); saveToLocal(); renderMemos(); } }
     function addColumn(id) { var memo = memos[id]; memo.headers.push('新列 ' + (memo.headers.length + 1)); memo.rows.forEach(function(row) { row.cells.push('新内容'); }); saveToLocal(); renderMemos(); }
-    function deleteColumn(id, colIdx) { if (memos[id].headers.length <= 1) { alert('至少保留一列'); return; } if (confirm('确定删除这一列吗？')) { memos[id].headers.splice(colIdx, 1); memos[id].rows.forEach(function(row) { row.cells.splice(colIdx, 1); }); saveToLocal(); renderMemos(); } }
     function updateHeader(id, colIdx, newValue) { memos[id].headers[colIdx] = newValue; saveToLocal(); }
     function updateCell(id, rowIdx, colIdx, newValue) { memos[id].rows[rowIdx].cells[colIdx] = newValue; saveToLocal(); }
     function toggleComplete(id, rowIdx, isChecked) { memos[id].rows[rowIdx].completed = isChecked; saveToLocal(); renderMemos(); }
-    function showRowColorPicker(id, rowIdx) { var color = prompt('输入行背景色(如 #ffcccc 或 lightblue):', memos[id].rows[rowIdx].bgColor || '#ffffff'); if (color) { memos[id].rows[rowIdx].bgColor = color; saveToLocal(); renderMemos(); } }
+    
+    function showRowColorPicker(id, rowIdx) {
+        var currentColor = memos[id].rows[rowIdx].bgColor || '#ffffff';
+        showColorPicker('选择行背景色', currentColor, function(color) {
+            memos[id].rows[rowIdx].bgColor = color;
+            saveToLocal();
+            renderMemos();
+        });
+    }
     
     function getActiveRemarkEditor() {
         var activeMemo = document.querySelector('.memo-content.active');
@@ -1431,10 +1328,9 @@
         });
     }
     
-    function saveCurrentRemark() {
-        var obj = getActiveRemarkEditor();
-        if (obj.editor && memos[obj.id]) { memos[obj.id].remark = obj.editor.innerHTML; saveToLocal(); }
-    }
+    function saveCurrentRemark() { var obj = getActiveRemarkEditor(); if (obj.editor && memos[obj.id]) { memos[obj.id].remark = obj.editor.innerHTML; saveToLocal(); } }
+    function closeColorPicker() { document.getElementById('colorPickerModal').style.display = 'none'; pendingColorCallback = null; }
+    function confirmColorPick() { if (pendingColorCallback) pendingColorCallback(document.getElementById('customColorInput').value); closeColorPicker(); }
     
     function showColorPicker(title, currentColor, callback) {
         pendingColorCallback = callback;
@@ -1442,32 +1338,30 @@
         document.getElementById('colorPickerTitle').textContent = title;
         var colorGrid = document.getElementById('colorGrid');
         colorGrid.innerHTML = '';
-        presetColors.forEach(function(color) {
+        for (var i = 0; i < presetColors.length; i++) {
+            var color = presetColors[i];
             var div = document.createElement('div');
             div.className = 'color-option';
             div.style.backgroundColor = color;
-            div.onclick = function() { document.getElementById('customColorInput').value = color; document.getElementById('colorPreview').style.backgroundColor = color; };
+            if (color === currentColor) div.classList.add('selected');
+            (function(c) { div.onclick = function() { document.getElementById('customColorInput').value = c; document.getElementById('colorPreview').style.backgroundColor = c; }; })(color);
             colorGrid.appendChild(div);
-        });
+        }
         document.getElementById('customColorInput').value = currentColor;
         document.getElementById('colorPreview').style.backgroundColor = currentColor;
         modal.style.display = 'flex';
     }
     
-    function closeColorPicker() { document.getElementById('colorPickerModal').style.display = 'none'; pendingColorCallback = null; }
-    function confirmColorPick() { if (pendingColorCallback) pendingColorCallback(document.getElementById('customColorInput').value); closeColorPicker(); }
-    
-    // 小窗口功能
     function showColumnSelector() {
         var memo = memos[currentMemoId];
         var columnList = document.getElementById('columnList');
         columnList.innerHTML = '';
-        memo.headers.forEach(function(header, idx) {
+        for (var i = 0; i < memo.headers.length; i++) {
             var div = document.createElement('div');
             div.className = 'column-item';
-            div.innerHTML = '<input type="checkbox" id="col_' + idx + '" value="' + idx + '" checked><label for="col_' + idx + '">' + escapeHtml(header) + '</label>';
+            div.innerHTML = '<input type="checkbox" id="col_' + i + '" value="' + i + '" checked><label for="col_' + i + '">' + escapeHtml(memo.headers[i]) + '</label>';
             columnList.appendChild(div);
-        });
+        }
         document.getElementById('columnSelectorModal').style.display = 'flex';
     }
     
@@ -1475,128 +1369,13 @@
     
     function confirmColumnSelect() {
         var checkboxes = document.querySelectorAll('#columnList input[type="checkbox"]');
-        selectedColumns = [];
-        checkboxes.forEach(function(cb) { if (cb.checked) selectedColumns.push(parseInt(cb.value)); });
-        if (selectedColumns.length === 0) { alert('请至少选择一列'); return; }
+        var selectedCols = [];
+        for (var i = 0; i < checkboxes.length; i++) { if (checkboxes[i].checked) selectedCols.push(parseInt(checkboxes[i].value)); }
+        if (selectedCols.length === 0) { alert('请至少选择一列'); return; }
         closeColumnSelector();
-        openIndependentFloatingWindow(currentMemoId, selectedColumns);
+        alert('小窗口功能已取消。\n\n使用左上角的 + / - 按钮可以缩放整个界面。\n\n选中的列：' + selectedCols.map(function(c) { return memos[currentMemoId].headers[c]; }).join(', '));
     }
     
-    function openIndependentFloatingWindow(memoId, columns) {
-        var memo = memos[memoId];
-        var activeRows = memo.rows.filter(function(row) { return !row.completed; });
-        
-        var headersHtml = '';
-        for (var i = 0; i < columns.length; i++) {
-            headersHtml += '<th>' + escapeHtml(memo.headers[columns[i]]) + '</th>';
-        }
-        headersHtml += '<th class="floating-checkbox">完成</th>';
-        
-        var rowsHtml = '';
-        for (var r = 0; r < activeRows.length; r++) {
-            var row = activeRows[r];
-            var originalIdx = memo.rows.indexOf(row);
-            var cellsHtml = '';
-            for (var c = 0; c < columns.length; c++) {
-                cellsHtml += '<td>' + escapeHtml(row.cells[columns[c]] || '') + '</td>';
-            }
-            cellsHtml += '<td class="floating-checkbox"><input type="checkbox" data-row="' + originalIdx + '" data-memo="' + memoId + '" onchange="toggleTaskCompleteInFloatingWin(this)"></td>';
-            rowsHtml += '<tr>' + cellsHtml + '</tr>';
-        }
-        
-        var tableHtml = '';
-        if (activeRows.length === 0) {
-            tableHtml = '<div class="empty-tip">所有任务都已完成！</div>';
-        } else {
-            tableHtml = '<div style="overflow-x:auto;"><table class="floating-table"><thead><tr>' + headersHtml + '</tr></thead><tbody>' + rowsHtml + '</tbody></table></div>';
-        }
-        
-        var remarkHtml = '<div class="floating-remark-section"><div class="floating-remark-title">备注栏</div><div id="floatingRemarkEditor" class="floating-remark-editor" contenteditable="true" onblur="saveFloatingRemarkWin()">' + (memo.remark || '') + '</div></div>';
-        
-        var winHtml = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>小窗口 - ' + escapeHtml(memo.name) + '</title><style>' +
-            '* { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, "Microsoft YaHei", sans-serif; }' +
-            'body { background: #F3F0E9; padding: 0; overflow: hidden; }' +
-            '.floating-window { width: 100vw; height: 100vh; background: #FCFAF5; display: flex; flex-direction: column; overflow: hidden; }' +
-            '.floating-header { background: #9CAF88; color: white; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; cursor: move; }' +
-            '.floating-title { font-size: 14px; font-weight: 500; }' +
-            '.floating-controls button { background: rgba(255,255,255,0.2); border: none; color: white; padding: 4px 12px; border-radius: 6px; cursor: pointer; margin-left: 8px; }' +
-            '.floating-content { flex: 1; overflow-y: auto; padding: 16px; background: #F3F0E9; }' +
-            '.floating-table { width: 100%; border-collapse: collapse; font-size: 13px; background: white; border-radius: 8px; margin-bottom: 15px; }' +
-            '.floating-table th, .floating-table td { border: 1px solid #D1CCC4; padding: 8px 12px; text-align: left; vertical-align: top; }' +
-            '.floating-table th { background: #E8E4DB; font-weight: 600; }' +
-            '.floating-checkbox { text-align: center; width: 50px; }' +
-            '.floating-checkbox input { width: 16px; height: 16px; cursor: pointer; }' +
-            '.floating-remark-section { margin-top: 12px; padding: 12px; background: #E8E4DB; border-radius: 10px; }' +
-            '.floating-remark-title { font-weight: 600; font-size: 12px; margin-bottom: 5px; }' +
-            '.floating-remark-editor { width: 100%; min-height: 70px; padding: 10px; border-radius: 8px; border: 1px solid #D1CCC4; font-size: 12px; resize: vertical; background: white; }' +
-            '.empty-tip { text-align: center; padding: 40px; color: #999; }' +
-            '</style></head><body>' +
-            '<div class="floating-window">' +
-            '<div class="floating-header" id="dragHeader">' +
-            '<span class="floating-title">\uD83D\uDCCB ' + escapeHtml(memo.name) + ' (未完成任务)</span>' +
-            '<div class="floating-controls"><button onclick="window.close()">关闭</button></div>' +
-            '</div>' +
-            '<div class="floating-content">' + tableHtml + remarkHtml + '</div>' +
-            '</div>' +
-            '<script>' +
-            'var header = document.getElementById("dragHeader");' +
-            'var isDragging = false, offsetX, offsetY;' +
-            'header.addEventListener("mousedown", function(e) {' +
-            'if (e.target.tagName === "BUTTON") return;' +
-            'isDragging = true;' +
-            'offsetX = e.clientX - window.screenX;' +
-            'offsetY = e.clientY - window.screenY;' +
-            'e.preventDefault();' +
-            '});' +
-            'window.addEventListener("mousemove", function(e) {' +
-            'if (!isDragging) return;' +
-            'window.moveTo(e.screenX - offsetX, e.screenY - offsetY);' +
-            '});' +
-            'window.addEventListener("mouseup", function() { isDragging = false; });' +
-            'function toggleTaskCompleteInFloatingWin(checkbox) {' +
-            'var rowIdx = parseInt(checkbox.getAttribute("data-row"));' +
-            'var memoId = checkbox.getAttribute("data-memo");' +
-            'var isChecked = checkbox.checked;' +
-            'if (window.opener) window.opener.updateTaskCompleteFromFloating(memoId, rowIdx, isChecked);' +
-            '}' +
-            'function saveFloatingRemarkWin() {' +
-            'var editor = document.getElementById("floatingRemarkEditor");' +
-            'if (editor && window.opener) window.opener.updateRemarkFromFloating("' + memoId + '", editor.innerHTML);' +
-            '}' +
-            'window.toggleTaskCompleteInFloatingWin = toggleTaskCompleteInFloatingWin;' +
-            'window.saveFloatingRemarkWin = saveFloatingRemarkWin;' +
-            '<\/script>' +
-            '</body></html>';
-        
-        var left = window.screenX + 100;
-        var top = window.screenY + 80;
-        var win = window.open('', 'floating_' + memoId + '_' + Date.now(), 'width=550,height=450,left=' + left + ',top=' + top + ',resizable=yes');
-        if (win) {
-            win.document.write(winHtml);
-            win.document.close();
-        } else {
-            alert('请允许弹出窗口');
-        }
-    }
-    
-    function updateTaskCompleteFromFloating(memoId, rowIdx, isChecked) {
-        if (memos[memoId] && memos[memoId].rows[rowIdx]) {
-            memos[memoId].rows[rowIdx].completed = isChecked;
-            saveToLocal();
-            renderMemos();
-        }
-    }
-    
-    function updateRemarkFromFloating(memoId, remarkHtml) {
-        if (memos[memoId]) {
-            memos[memoId].remark = remarkHtml;
-            saveToLocal();
-            var editor = document.getElementById('remark-editor-' + memoId);
-            if (editor) editor.innerHTML = remarkHtml;
-        }
-    }
-    
-    // 认证页面
     function showAuthPage() {
         var authHtml = '<div id="authContainer" class="auth-overlay"><div id="loginPage" class="auth-container"><div class="auth-title">智能备忘录</div><input type="text" id="loginId" class="auth-input" placeholder="ID"><input type="password" id="loginPassword" class="auth-input" placeholder="密码"><button class="auth-btn" onclick="handleLogin()">登录</button><div class="auth-link" onclick="showRegisterPage()">还没有账号？<span>注册新账号</span></div><div class="auth-link" onclick="showForgotPage()"><span>忘记密码？</span></div></div></div>';
         var oldAuth = document.getElementById('authContainer');
@@ -1604,15 +1383,8 @@
         document.getElementById('app').insertAdjacentHTML('afterbegin', authHtml);
     }
     
-    function showRegisterPage() {
-        var container = document.getElementById('authContainer');
-        container.innerHTML = '<div class="auth-container"><div class="auth-title">注册新账号</div><input type="text" id="regId" class="auth-input" placeholder="ID"><input type="password" id="regPassword" class="auth-input" placeholder="密码"><input type="text" id="regQuestion" class="auth-input" placeholder="密保问题"><input type="text" id="regAnswer" class="auth-input" placeholder="密保答案"><button class="auth-btn" onclick="handleRegister()">注册</button><div class="auth-link" onclick="showAuthPage()"><span>返回登录</span></div></div>';
-    }
-    
-    function showForgotPage() {
-        var container = document.getElementById('authContainer');
-        container.innerHTML = '<div class="auth-container"><div class="auth-title">找回密码</div><input type="text" id="forgotId" class="auth-input" placeholder="ID"><button class="auth-btn" onclick="checkSecurityQuestion()">下一步</button><div class="auth-link" onclick="showAuthPage()"><span>返回登录</span></div></div>';
-    }
+    function showRegisterPage() { var container = document.getElementById('authContainer'); container.innerHTML = '<div class="auth-container"><div class="auth-title">注册新账号</div><input type="text" id="regId" class="auth-input" placeholder="ID"><input type="password" id="regPassword" class="auth-input" placeholder="密码"><input type="text" id="regQuestion" class="auth-input" placeholder="密保问题"><input type="text" id="regAnswer" class="auth-input" placeholder="密保答案"><button class="auth-btn" onclick="handleRegister()">注册</button><div class="auth-link" onclick="showAuthPage()"><span>返回登录</span></div></div>'; }
+    function showForgotPage() { var container = document.getElementById('authContainer'); container.innerHTML = '<div class="auth-container"><div class="auth-title">找回密码</div><input type="text" id="forgotId" class="auth-input" placeholder="ID"><button class="auth-btn" onclick="checkSecurityQuestion()">下一步</button><div class="auth-link" onclick="showAuthPage()"><span>返回登录</span></div></div>'; }
     
     function checkSecurityQuestion() {
         var id = document.getElementById('forgotId').value.trim();
@@ -1665,15 +1437,22 @@
     function exportToExcel(id) {
         var memo = memos[id];
         var fileName = currentUser.id + '_' + getTodayString();
-        var data = [[...memo.headers, '完成状态'], ...memo.rows.map(function(row) { return [...row.cells, row.completed ? '已完成' : '未完成']; }), [''], ['备注信息'], [''], ...(stripHtml(memo.remark || '').split('\n').filter(function(l) { return l.trim(); }).map(function(l) { return [l]; })), [''], ['----------------------------------------'], ['导出时间：' + new Date().toLocaleString()], ['导出自：' + currentUser.id]];
+        var data = [memo.headers.concat(['完成状态'])];
+        for (var i = 0; i < memo.rows.length; i++) { data.push(memo.rows[i].cells.concat([memo.rows[i].completed ? '已完成' : '未完成'])); }
+        data.push([''], ['备注信息'], ['']);
+        var remarkLines = stripHtml(memo.remark || '').split('\n');
+        for (var j = 0; j < remarkLines.length; j++) { if (remarkLines[j].trim()) data.push([remarkLines[j]]); }
+        data.push([''], ['----------------------------------------'], ['导出时间：' + new Date().toLocaleString()], ['导出自：' + currentUser.id]);
+        
         var xml = '<?xml version="1.0" encoding="UTF-8"?>\n<?mso-application progid="Excel.Sheet"?>\n<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="' + fileName.substring(0,31) + '"><Table>\n';
-        data.forEach(function(row) {
+        for (var r = 0; r < data.length; r++) {
             xml += '<Row>\n';
-            row.forEach(function(cell) {
-                xml += '<Cell><Data ss:Type="String">' + String(cell || '').replace(/[&<>]/g, function(m) { return { '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]; }) + '</Data></Cell>\n';
-            });
+            for (var c = 0; c < data[r].length; c++) {
+                var cellValue = String(data[r][c] || '');
+                xml += '<Cell><Data ss:Type="String">' + cellValue.replace(/[&<>]/g, function(m) { return { '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]; }) + '</Data></Cell>\n';
+            }
             xml += '</Row>\n';
-        });
+        }
         xml += '</Table></Worksheet></Workbook>';
         var blob = new Blob([xml], { type: 'application/vnd.ms-excel' });
         var link = document.createElement('a');
@@ -1706,7 +1485,9 @@
         var memo = memos[id];
         var name = prompt('请输入模板名称:', memo.name + '_模板');
         if (name) {
-            var template = { name: name, headers: memo.headers.slice(), rows: memo.rows.map(function(row) { return { cells: row.cells.slice(), completed: row.completed, bgColor: row.bgColor }; }), remark: memo.remark };
+            var template = { name: name, headers: memo.headers.slice(), rows: [] };
+            for (var i = 0; i < memo.rows.length; i++) { template.rows.push({ cells: memo.rows[i].cells.slice(), completed: memo.rows[i].completed, bgColor: memo.rows[i].bgColor }); }
+            template.remark = memo.remark;
             var templates = JSON.parse(localStorage.getItem('user_' + currentUser.id + '_templates') || '[]');
             templates.push(template);
             localStorage.setItem('user_' + currentUser.id + '_templates', JSON.stringify(templates));
@@ -1718,12 +1499,13 @@
         var templates = JSON.parse(localStorage.getItem('user_' + currentUser.id + '_templates') || '[]');
         if (templates.length === 0) { alert('暂无保存的模板'); return; }
         var msg = '选择模板:\n';
-        templates.forEach(function(t, i) { msg += (i+1) + '. ' + t.name + '\n'; });
+        for (var i = 0; i < templates.length; i++) { msg += (i+1) + '. ' + templates[i].name + '\n'; }
         var idx = parseInt(prompt(msg)) - 1;
         if (idx >= 0 && idx < templates.length) {
             var t = templates[idx];
             memos[id].headers = t.headers.slice();
-            memos[id].rows = t.rows.map(function(row) { return { cells: row.cells.slice(), completed: row.completed, bgColor: row.bgColor || '#ffffff' }; });
+            memos[id].rows = [];
+            for (var j = 0; j < t.rows.length; j++) { memos[id].rows.push({ cells: t.rows[j].cells.slice(), completed: t.rows[j].completed, bgColor: t.rows[j].bgColor || '#ffffff' }); }
             memos[id].remark = t.remark;
             saveToLocal();
             render();
@@ -1742,9 +1524,9 @@
     window.handleReset = handleReset;
     window.showAuthPage = showAuthPage;
     window.addRow = addRow;
-    window.deleteRow = deleteRow;
+    window.deleteRowConfirm = deleteRowConfirm;
     window.addColumn = addColumn;
-    window.deleteColumn = deleteColumn;
+    window.deleteColumnConfirm = deleteColumnConfirm;
     window.updateHeader = updateHeader;
     window.updateCell = updateCell;
     window.toggleComplete = toggleComplete;
@@ -1760,7 +1542,6 @@
     window.formatRemarkItalic = formatRemarkItalic;
     window.formatRemarkUnderline = formatRemarkUnderline;
     window.changeSelectedTextColor = changeSelectedTextColor;
-    window.showColorPicker = showColorPicker;
     window.closeColorPicker = closeColorPicker;
     window.confirmColorPick = confirmColorPick;
     window.showColumnSelector = showColumnSelector;
@@ -1777,16 +1558,15 @@
     window.closeTrashModal = closeTrashModal;
     window.restoreFromTrash = restoreFromTrash;
     window.permanentDelete = permanentDelete;
-    window.updateTaskCompleteFromFloating = updateTaskCompleteFromFloating;
-    window.updateRemarkFromFloating = updateRemarkFromFloating;
     
     // 初始化
-    document.getElementById('smallWindowBtn').addEventListener('click', showColumnSelector);
     document.getElementById('rightHistoryBtn').addEventListener('click', showHistory);
     document.getElementById('trashBtn').addEventListener('click', showTrash);
+    initZoomControls();
     
     if (!checkAutoLogin()) showAuthPage();
     initThemeDrawer();
+})();
 </script>
 </body>
 </html>
