@@ -105,6 +105,7 @@
         .restore-btn { background: #28a745; color: white; padding: 6px 12px; border-radius: 6px; border: none; cursor: pointer; margin-right: 8px; }
         .delete-perm { background: #dc3545; }
         .status-text { font-size: 12px; color: #28a745; margin-top: 8px; }
+        .template-select { width: 100%; padding: 8px; margin-top: 10px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--card-white); }
     </style>
 </head>
 <body class="theme-1">
@@ -133,6 +134,7 @@
     var nextId = 1;
     var historyList = [];
     var trashList = [];
+    var templateList = [];
     var zoom = 100;
     var currentTheme = 1;
     var colorCallback = null;
@@ -177,6 +179,7 @@
         var st=localStorage.getItem('user_'+id+'_theme');if(st)changeTheme(parseInt(st));else changeTheme(1);
         var h=localStorage.getItem('user_'+id+'_history');if(h)historyList=JSON.parse(h);else historyList=[];
         var t=localStorage.getItem('user_'+id+'_trash');if(t)trashList=JSON.parse(t);else trashList=[];
+        var tp=localStorage.getItem('user_'+id+'_templates');if(tp)templateList=JSON.parse(tp);else templateList=[];
         
         renderMainApp();
         return true;
@@ -193,6 +196,7 @@
             localStorage.setItem('user_'+currentUser.id+'_data',JSON.stringify(memos));
             localStorage.setItem('user_'+currentUser.id+'_history',JSON.stringify(historyList));
             localStorage.setItem('user_'+currentUser.id+'_trash',JSON.stringify(trashList));
+            localStorage.setItem('user_'+currentUser.id+'_templates',JSON.stringify(templateList));
         }
     }
     
@@ -208,6 +212,60 @@
             ],
             remark:''
         };
+    }
+    
+    // ========== 模板功能 ==========
+    function saveCurrentAsTemplate(){
+        var m=memos[currentMemoId];
+        if(!m)return;
+        var name=prompt('请输入模板名称:',m.name+'_模板');
+        if(name && name.trim()){
+            var template={
+                id:Date.now(),
+                name:name.trim(),
+                headers:m.headers.slice(),
+                rows:m.rows.map(function(row){
+                    return{
+                        cells:row.cells.slice(),
+                        completed:row.completed,
+                        bgColor:row.bgColor
+                    };
+                }),
+                remark:m.remark
+            };
+            templateList.push(template);
+            saveAll();
+            alert('模板保存成功！');
+        }
+    }
+    
+    function loadTemplate(){
+        if(templateList.length===0){
+            alert('暂无保存的模板');
+            return;
+        }
+        var msg='选择要加载的模板:\n\n';
+        for(var i=0;i<templateList.length;i++){
+            msg+=(i+1)+'. '+templateList[i].name+'\n';
+        }
+        var idx=parseInt(prompt(msg))-1;
+        if(idx>=0 && idx<templateList.length){
+            var t=templateList[idx];
+            var m=memos[currentMemoId];
+            m.headers=t.headers.slice();
+            m.rows=[];
+            for(var i=0;i<t.rows.length;i++){
+                m.rows.push({
+                    cells:t.rows[i].cells.slice(),
+                    completed:t.rows[i].completed,
+                    bgColor:t.rows[i].bgColor||'#fff'
+                });
+            }
+            m.remark=t.remark;
+            saveAll();
+            renderMemos();
+            alert('模板加载成功！');
+        }
     }
     
     // ========== 表格操作 ==========
@@ -459,7 +517,7 @@
         reader.readAsText(file,'UTF-8');
     }
     
-    function addExcelButtons(){
+    function addToolbarButtons(){
         var activePane=document.querySelector('.memo-pane.active');
         if(!activePane)return;
         var toolbar=activePane.querySelector('.toolbar');
@@ -480,8 +538,20 @@
                 input.onchange=function(e){if(e.target.files[0])importExcel(e.target.files[0]);};
                 input.click();
             };
+            var saveTemplateBtn=document.createElement('button');
+            saveTemplateBtn.id='saveTemplateBtn';
+            saveTemplateBtn.className='icon-btn';
+            saveTemplateBtn.innerHTML='💾 保存模板';
+            saveTemplateBtn.onclick=function(){saveCurrentAsTemplate();};
+            var loadTemplateBtn=document.createElement('button');
+            loadTemplateBtn.id='loadTemplateBtn';
+            loadTemplateBtn.className='icon-btn';
+            loadTemplateBtn.innerHTML='📂 加载模板';
+            loadTemplateBtn.onclick=function(){loadTemplate();};
             toolbar.appendChild(exportBtn);
             toolbar.appendChild(importBtn);
+            toolbar.appendChild(saveTemplateBtn);
+            toolbar.appendChild(loadTemplateBtn);
         }
     }
     
@@ -548,11 +618,10 @@
             div.innerHTML=generateMemoHTML(m);
             c.appendChild(div);
         }
-        addExcelButtons();
+        addToolbarButtons();
     }
     
     function generateMemoHTML(m){
-        // 表头：选择列 + 数据列 + 状态列 + 操作列
         var headerHtml='<th class="col-select"><input type="checkbox" onchange="selectAll(\''+m.id+'\',this.checked)"></th>';
         for(var i=0;i<m.headers.length;i++){
             headerHtml+='<th><span contenteditable="true" onblur="updateHeader(\''+m.id+'\','+i+',this.innerText)">'+escapeHtml(m.headers[i])+'</span><button class="icon-btn" onclick="delCol(\''+m.id+'\','+i+')" style="margin-left:8px;">🗑️</button></th>';
@@ -560,7 +629,6 @@
         headerHtml+='<th class="col-status">✅ 状态</th>';
         headerHtml+='<th class="col-action">⚙️ 操作</th>';
         
-        // 数据行
         var rowsHtml='';
         for(var r=0;r<m.rows.length;r++){
             var row=m.rows[r];
@@ -633,6 +701,7 @@
     window.showRowColor=showRowColor;window.selectAll=selectAll;
     window.formatCmd=formatCmd;window.formatColorText=formatColorText;window.saveRemark=saveRemark;
     window.exportToExcel=exportToExcel;window.importExcel=importExcel;
+    window.saveCurrentAsTemplate=saveCurrentAsTemplate;window.loadTemplate=loadTemplate;
     
     var savedUser=localStorage.getItem('cur_user');
     if(savedUser){var u=loadUsers();if(u[savedUser]){login(savedUser,u[savedUser].pwd);}else{showLoginPage();}}else{showLoginPage();}
